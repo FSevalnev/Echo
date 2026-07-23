@@ -1,0 +1,33 @@
+@import "tailwindcss";
+
+/* Enables the `dark:` variant based on a `.dark` class on <html>,
+   instead of only following the OS preference. The class is toggled
+   by ThemeToggle.tsx and set on first paint by the inline script in
+   layout.tsx (to avoid a flash of the wrong theme). */
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+.dark {
+  --background: #0a0a0a;
+  --foreground: #ededed;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-noto-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  /* Noto Sans first — it has full glyph coverage for Tajik's extended
+     Cyrillic letters (ӯ, ҳ, ғ, қ, ҷ, ӣ). Arial/Helvetica stay only as a
+     last-resort fallback if the web font somehow fails to load. */
+  font-family: var(--font-noto-sans), Arial, Helvetica, sans-serif;
+}
