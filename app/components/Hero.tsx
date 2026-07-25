@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useLanguage } from "../i18n/LanguageContext";
 
 export default function Hero() {
@@ -8,8 +9,26 @@ export default function Hero() {
   return (
     <section id="top" className="relative flex min-h-screen items-center justify-center px-6 pt-24 scroll-mt-24">
 
-      {/* Background */}
-      <div className="absolute inset-0 -z-10 bg-gradient-to-b from-blue-50 via-white to-white dark:from-gray-900 dark:via-black dark:to-black" />
+      {/* Background — light-mode and dark-mode artwork, swapped via the
+          `dark:` variant. Files live in public/brand/ (see README note). */}
+      <div className="absolute inset-0 -z-10 overflow-hidden bg-white dark:bg-black">
+        <Image
+          src="/brand/hero-bg-light.jpg"
+          alt=""
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover dark:hidden"
+        />
+        <Image
+          src="/brand/hero-bg-dark.jpg"
+          alt=""
+          fill
+          priority
+          sizes="100vw"
+          className="hidden object-cover dark:block"
+        />
+      </div>
 
       <div className="max-w-6xl mx-auto grid lg:grid-cols-2 gap-16 items-center">
 
