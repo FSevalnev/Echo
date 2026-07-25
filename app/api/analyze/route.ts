@@ -6,11 +6,13 @@ type Level = "beginner" | "intermediate" | "advanced" | "auto";
 type Cause = "theory" | "carelessness" | "misreading" | "logic" | "calculation";
 
 type AnalyzeRequestBody = {
-  mode?: "text" | "audio";
+  mode?: "text" | "audio" | "file";
   topic?: string;
   explanation?: string;
   audioBase64?: string;
   audioMimeType?: string;
+  fileBase64?: string;
+  fileMimeType?: string;
   lang?: "en" | "ru" | "tg";
   level?: Level;
   previousScores?: number[];
@@ -83,17 +85,24 @@ const LEVEL_INSTRUCTIONS: Record<Level, string> = {
 
 function buildSystemPrompt(
   languageName: string,
-  includeTranscript: boolean,
+  inputMode: "text" | "audio" | "file",
   level: Level,
   previousScores: number[]
 ): string {
-  const transcriptField = includeTranscript
-    ? `\n  "transcript": <a faithful text transcription of what the student said, in the language they spoke>,`
-    : "";
+  const transcriptField =
+    inputMode === "audio"
+      ? `\n  "transcript": <a faithful text transcription of what the student said, in the language they spoke>,`
+      : "";
 
-  const audioNote = includeTranscript
-    ? "You will be given an audio recording of a student explaining a topic out loud, instead of written text. First transcribe what they said, then assess it exactly as you would a written explanation.\n\n"
-    : "";
+  const audioNote =
+    inputMode === "audio"
+      ? "You will be given an audio recording of a student explaining a topic out loud, instead of written text. First transcribe what they said, then assess it exactly as you would a written explanation.\n\n"
+      : "";
+
+  const fileNote =
+    inputMode === "file"
+      ? "You will be given an image or PDF file instead of written text — this could be a photo of handwritten notes, a hand-drawn diagram, a photographed textbook/notebook page, or a scanned/typed document containing the student's explanation of the topic. Carefully read and interpret everything relevant in it (including diagrams and labels), then assess it exactly as you would a written explanation. If the file is illegible, blank, or clearly unrelated to the topic, say so plainly in \"mistakes\" and score it low rather than guessing.\n\n"
+      : "";
 
   const progressNote =
     previousScores.length > 0
@@ -104,7 +113,7 @@ function buildSystemPrompt(
 
   return `You are Echo, an AI learning coach built on the Feynman technique: a student truly understands a topic once they can explain it in their own words, and the specific gaps in their explanation reveal the specific gaps in their understanding.
 
-${audioNote}Your job is to give a fully individualized, non-generic analysis of ONE student's explanation of ONE topic — never a templated response. Judge based on everything they actually wrote/said: correctness, completeness, logical coherence, accurate use of terms and concepts, and the quality of their reasoning process, not just whether the final "answer" sounds right.
+${audioNote}${fileNote}Your job is to give a fully individualized, non-generic analysis of ONE student's explanation of ONE topic — never a templated response. Judge based on everything they actually wrote/said: correctness, completeness, logical coherence, accurate use of terms and concepts, and the quality of their reasoning process, not just whether the final "answer" sounds right.
 
 ${LEVEL_INSTRUCTIONS[level]}
 
@@ -168,7 +177,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
   }
 
-  const mode = body.mode === "audio" ? "audio" : "text";
+  const mode: "text" | "audio" | "file" =
+    body.mode === "audio" ? "audio" : body.mode === "file" ? "file" : "text";
   const topic = (body.topic ?? "").trim();
   const languageName = LANGUAGE_NAMES[body.lang ?? "en"] ?? "English";
   const level: Level = ["beginner", "intermediate", "advanced", "auto"].includes(
@@ -212,6 +222,30 @@ export async function POST(req: NextRequest) {
         },
       },
     ];
+  } else if (mode === "file") {
+    const fileBase64 = body.fileBase64;
+    const fileMimeType = body.fileMimeType || "image/jpeg";
+
+    if (!fileBase64) {
+      return NextResponse.json(
+        { error: "`fileBase64` is required for mode=\"file\"" },
+        { status: 400 }
+      );
+    }
+
+    // Note: the uploaded file is only ever forwarded to Gemini in this
+    // single request — it is never written to disk or a database here.
+    requestParts = [
+      {
+        text: `Topic: ${topic || "(not specified)"}\n\nThe attached file is the student's explanation of this topic (a photo of notes/diagram, a scanned page, or a PDF).`,
+      },
+      {
+        inline_data: {
+          mime_type: fileMimeType,
+          data: fileBase64,
+        },
+      },
+    ];
   } else {
     const explanation = (body.explanation ?? "").trim();
 
@@ -237,7 +271,7 @@ export async function POST(req: NextRequest) {
         system_instruction: {
           parts: [
             {
-              text: buildSystemPrompt(languageName, mode === "audio", level, previousScores),
+              text: buildSystemPrompt(languageName, mode, level, previousScores),
             },
           ],
         },

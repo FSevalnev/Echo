@@ -3,6 +3,7 @@
 import Image from "next/image";
 import ThemeToggle from "./ThemeToggle";
 import LanguageSwitcher from "./LanguageSwitcher";
+import AccountMenu from "./AccountMenu";
 import { useLanguage } from "../i18n/LanguageContext";
 
 export default function Navbar() {
@@ -50,6 +51,8 @@ export default function Navbar() {
           <LanguageSwitcher />
 
           <ThemeToggle />
+
+          <AccountMenu />
 
           <a
             href="#try"

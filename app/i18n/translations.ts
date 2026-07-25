@@ -95,10 +95,47 @@ export type Dictionary = {
     practiceTitle: string;
     progressLabel: string;
     noHistory: string;
+    modeFile: string;
+    fileChoose: string;
+    fileChooseAnother: string;
+    fileHint: string;
+    fileTypeError: string;
+    fileSizeError: string;
+    signUpPrompt: string;
   };
   footer: {
     tagline: string;
     rightsReserved: string;
+  };
+  auth: {
+    signInTitle: string;
+    signUpTitle: string;
+    signInSubmit: string;
+    signUpSubmit: string;
+    submitting: string;
+    continueWithGoogle: string;
+    orDivider: string;
+    emailLabel: string;
+    passwordLabel: string;
+    noAccount: string;
+    haveAccount: string;
+    backHome: string;
+    checkEmail: string;
+    notConfigured: string;
+    signOut: string;
+    history: string;
+  };
+  history: {
+    title: string;
+    subtitle: string;
+    empty: string;
+    signInPrompt: string;
+    backHome: string;
+    loading: string;
+    scoreLabel: string;
+    dateLabel: string;
+    topicLabel: string;
+    clearAll: string;
   };
 };
 
@@ -232,11 +269,49 @@ export const translations: Record<Lang, Dictionary> = {
       practiceTitle: "Practice with similar examples",
       progressLabel: "Progress",
       noHistory: "This is your first attempt on this topic — no history yet.",
+      modeFile: "Photo/File",
+      fileChoose: "Choose a photo or file",
+      fileChooseAnother: "Choose a different file",
+      fileHint: "JPG, PNG, or PDF — a photo of your notes, a diagram, or a scanned page.",
+      fileTypeError: "That file type isn't supported. Please upload a JPG, PNG, WEBP, or PDF.",
+      fileSizeError: "That file is too large. Please keep it under 15MB.",
+      signUpPrompt: "Sign up to save this progress and see it on any device.",
     },
     footer: {
       tagline:
         "Learn by explaining. AI feedback that finds your gaps and helps you close them.",
       rightsReserved: "All rights reserved.",
+    },
+    auth: {
+      signInTitle: "Sign In",
+      signUpTitle: "Sign Up",
+      signInSubmit: "Sign In",
+      signUpSubmit: "Create Account",
+      submitting: "Please wait...",
+      continueWithGoogle: "Continue with Google",
+      orDivider: "or",
+      emailLabel: "Email",
+      passwordLabel: "Password",
+      noAccount: "Don't have an account?",
+      haveAccount: "Already have an account?",
+      backHome: "Back to Echo",
+      checkEmail: "Check your inbox to confirm your email, then sign in.",
+      notConfigured:
+        "Accounts aren't set up for this deployment yet — you can still use Echo as a guest.",
+      signOut: "Sign Out",
+      history: "History",
+    },
+    history: {
+      title: "Your Progress",
+      subtitle: "Every AI-graded attempt, saved to your account.",
+      empty: "No attempts yet — go explain something on the homepage.",
+      signInPrompt: "Sign in to see your saved progress.",
+      backHome: "← Back to Echo",
+      loading: "Loading your history...",
+      scoreLabel: "Score",
+      dateLabel: "Date",
+      topicLabel: "Topic",
+      clearAll: "Clear history",
     },
   },
 
@@ -369,10 +444,48 @@ export const translations: Record<Lang, Dictionary> = {
       practiceTitle: "Похожие задания для практики",
       progressLabel: "Прогресс",
       noHistory: "Это твоя первая попытка по этой теме — истории пока нет.",
+      modeFile: "Фото/Файл",
+      fileChoose: "Выбрать фото или файл",
+      fileChooseAnother: "Выбрать другой файл",
+      fileHint: "JPG, PNG или PDF — фото твоих конспектов, схема или скан страницы.",
+      fileTypeError: "Этот тип файла не поддерживается. Загрузи JPG, PNG, WEBP или PDF.",
+      fileSizeError: "Файл слишком большой. Держи его меньше 15МБ.",
+      signUpPrompt: "Зарегистрируйся, чтобы сохранить этот прогресс и видеть его на любом устройстве.",
     },
     footer: {
       tagline: "Учись, объясняя. ИИ-фидбек находит твои пробелы и помогает их закрыть.",
       rightsReserved: "Все права защищены.",
+    },
+    auth: {
+      signInTitle: "Войти",
+      signUpTitle: "Регистрация",
+      signInSubmit: "Войти",
+      signUpSubmit: "Создать аккаунт",
+      submitting: "Подождите...",
+      continueWithGoogle: "Продолжить с Google",
+      orDivider: "или",
+      emailLabel: "Email",
+      passwordLabel: "Пароль",
+      noAccount: "Нет аккаунта?",
+      haveAccount: "Уже есть аккаунт?",
+      backHome: "Назад в Echo",
+      checkEmail: "Проверь почту, чтобы подтвердить email, затем войди.",
+      notConfigured:
+        "Аккаунты пока не настроены для этого деплоя — можно пользоваться Echo как гость.",
+      signOut: "Выйти",
+      history: "История",
+    },
+    history: {
+      title: "Твой прогресс",
+      subtitle: "Каждая попытка, оценённая ИИ, сохранена в твоём аккаунте.",
+      empty: "Пока нет попыток — объясни что-нибудь на главной странице.",
+      signInPrompt: "Войди, чтобы увидеть сохранённый прогресс.",
+      backHome: "← Назад в Echo",
+      loading: "Загружаю историю...",
+      scoreLabel: "Оценка",
+      dateLabel: "Дата",
+      topicLabel: "Тема",
+      clearAll: "Очистить историю",
     },
   },
 
@@ -505,11 +618,49 @@ export const translations: Record<Lang, Dictionary> = {
       practiceTitle: "Машқҳои монанд барои мустаҳкамкунӣ",
       progressLabel: "Пешрафт",
       noHistory: "Ин кӯшиши аввалини шумо оид ба ин мавзӯъ аст — таърих ҳанӯз нест.",
+      modeFile: "Акс/Файл",
+      fileChoose: "Акс ё файл интихоб кунед",
+      fileChooseAnother: "Файли дигар интихоб кунед",
+      fileHint: "JPG, PNG ё PDF — акси конспектҳои шумо, диаграмма ё саҳифаи сканшуда.",
+      fileTypeError: "Ин навъи файл дастгирӣ намешавад. JPG, PNG, WEBP ё PDF бор кунед.",
+      fileSizeError: "Файл хеле калон аст. Онро то 15МБ нигоҳ доред.",
+      signUpPrompt: "Барои нигоҳ доштани ин пешрафт ва дидани он дар ҳар дастгоҳ бақайд гиред.",
     },
     footer: {
       tagline:
         "Бо шарҳ додан омӯзед. Бозхӯрии AI норасоиҳои шуморо ёфта, дар бартараф кардани онҳо кӯмак мекунад.",
       rightsReserved: "Ҳама ҳуқуқҳо ҳифз шудаанд.",
+    },
+    auth: {
+      signInTitle: "Ворид шудан",
+      signUpTitle: "Бақайдгирӣ",
+      signInSubmit: "Ворид шудан",
+      signUpSubmit: "Ҳисоб созед",
+      submitting: "Лутфан интизор шавед...",
+      continueWithGoogle: "Бо Google идома диҳед",
+      orDivider: "ё",
+      emailLabel: "Email",
+      passwordLabel: "Парол",
+      noAccount: "Ҳисоб надоред?",
+      haveAccount: "Аллакай ҳисоб доред?",
+      backHome: "Бозгашт ба Echo",
+      checkEmail: "Барои тасдиқи email-и худ почтаро тафтиш кунед, сипас ворид шавед.",
+      notConfigured:
+        "Ҳисобҳо барои ин деплой ҳанӯз танзим нашудаанд — шумо метавонед Echo-ро ҳамчун меҳмон истифода баред.",
+      signOut: "Баромадан",
+      history: "Таърих",
+    },
+    history: {
+      title: "Пешрафти шумо",
+      subtitle: "Ҳар кӯшише, ки аз ҷониби AI баҳо дода шудааст, дар ҳисоби шумо нигоҳ дошта мешавад.",
+      empty: "Ҳанӯз кӯшише нест — дар саҳифаи асосӣ чизеро шарҳ диҳед.",
+      signInPrompt: "Барои дидани пешрафти сабтшуда ворид шавед.",
+      backHome: "← Бозгашт ба Echo",
+      loading: "Таърих бор карда истодааст...",
+      scoreLabel: "Хол",
+      dateLabel: "Сана",
+      topicLabel: "Мавзӯъ",
+      clearAll: "Тоза кардани таърих",
     },
   },
 };

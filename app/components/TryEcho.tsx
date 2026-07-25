@@ -1,8 +1,11 @@
 "use client";
 
-import { useEffect, useRef, useState, FormEvent } from "react";
+import { useEffect, useRef, useState, FormEvent, ChangeEvent } from "react";
+import Link from "next/link";
 import { useLanguage } from "../i18n/LanguageContext";
 import { Dictionary, Lang } from "../i18n/translations";
+import { useAuth, isSupabaseConfigured } from "../auth/AuthContext";
+import { createClient } from "../../lib/supabase/client";
 
 type Level = "beginner" | "intermediate" | "advanced" | "auto";
 type Cause = "theory" | "carelessness" | "misreading" | "logic" | "calculation";
@@ -37,11 +40,13 @@ type AnalysisResult = {
 
 type Feedback = AnalysisResult & { source: "ai" | "mock" };
 
-// --- Local progress history (per browser, per topic) -----------------
-// No backend/accounts yet, so "progress vs previous attempts" is tracked
-// client-side in localStorage, keyed by a normalized topic string. Only
-// real AI-graded attempts are recorded (not the offline mock fallback),
-// so history stays meaningful.
+// --- Progress history --------------------------------------------------
+// Guests (no account): tracked client-side in localStorage, keyed by a
+// normalized topic string, exactly as before.
+// Signed-in users: tracked in Supabase (`attempts` table) so history
+// follows the account across devices instead of living in one browser.
+// Either way, only real AI-graded attempts are recorded (not the offline
+// mock fallback), so history stays meaningful.
 const HISTORY_KEY = "echo_attempt_history";
 type HistoryMap = Record<string, { date: string; score: number }[]>;
 
@@ -49,7 +54,7 @@ function normalizeTopicKey(topic: string): string {
   return topic.trim().toLowerCase();
 }
 
-function readHistory(): HistoryMap {
+function readLocalHistory(): HistoryMap {
   try {
     const raw = localStorage.getItem(HISTORY_KEY);
     return raw ? (JSON.parse(raw) as HistoryMap) : {};
@@ -58,16 +63,16 @@ function readHistory(): HistoryMap {
   }
 }
 
-function getPreviousScores(topic: string): number[] {
+function getLocalPreviousScores(topic: string): number[] {
   if (!topic.trim()) return [];
-  const history = readHistory();
+  const history = readLocalHistory();
   return (history[normalizeTopicKey(topic)] ?? []).map((entry) => entry.score);
 }
 
-function saveAttempt(topic: string, score: number) {
+function saveLocalAttempt(topic: string, score: number) {
   if (!topic.trim()) return;
   try {
-    const history = readHistory();
+    const history = readLocalHistory();
     const key = normalizeTopicKey(topic);
     const entries = history[key] ?? [];
     entries.push({ date: new Date().toISOString(), score });
@@ -76,6 +81,73 @@ function saveAttempt(topic: string, score: number) {
   } catch {
     // localStorage might be unavailable (private mode, etc) — progress
     // tracking is a nice-to-have, fail silently rather than break submit.
+  }
+}
+
+async function getCloudPreviousScores(userId: string, topic: string): Promise<number[]> {
+  if (!topic.trim()) return [];
+  try {
+    const supabase = createClient();
+    const { data, error } = await supabase
+      .from("attempts")
+      .select("score")
+      .eq("user_id", userId)
+      .eq("topic_key", normalizeTopicKey(topic))
+      .order("created_at", { ascending: true })
+      .limit(10);
+    if (error || !data) return [];
+    return data.map((row) => row.score as number);
+  } catch {
+    return [];
+  }
+}
+
+async function saveCloudAttempt(
+  userId: string,
+  topic: string,
+  mode: "text" | "audio" | "file",
+  level: Level,
+  result: AnalysisResult
+): Promise<void> {
+  if (!topic.trim()) return;
+  try {
+    const supabase = createClient();
+    await supabase.from("attempts").insert({
+      user_id: userId,
+      topic,
+      topic_key: normalizeTopicKey(topic),
+      mode,
+      level,
+      score: result.score,
+      summary: result.summary,
+      criteria: result.criteria,
+      mistakes: result.mistakes,
+      recommendations: result.recommendations,
+    });
+  } catch {
+    // Saving progress should never block showing the feedback that was
+    // already returned.
+  }
+}
+
+// Unified helpers the component calls — branch on whether someone is
+// signed in (and Supabase is actually configured) or browsing as a guest.
+async function getPreviousScores(userId: string | null, topic: string): Promise<number[]> {
+  if (userId && isSupabaseConfigured) return getCloudPreviousScores(userId, topic);
+  return getLocalPreviousScores(topic);
+}
+
+async function saveAttempt(
+  userId: string | null,
+  topic: string,
+  mode: "text" | "audio" | "file",
+  level: Level,
+  result: AnalysisResult
+): Promise<void> {
+  if (userId && isSupabaseConfigured) {
+    await saveCloudAttempt(userId, topic, mode, level, result);
+  } else {
+    saveLocalAttempt(topic, result.score);
   }
 }
 
@@ -259,10 +331,14 @@ const SUPPORTED_MIME_TYPES = [
 
 const MAX_RECORDING_MS = 90_000;
 
+const SUPPORTED_FILE_TYPES = ["image/jpeg", "image/png", "image/webp", "image/heic", "application/pdf"];
+const MAX_FILE_BYTES = 15 * 1024 * 1024; // 15MB — comfortably under Gemini's inline-data limit
+
 export default function TryEcho() {
   const { t, lang } = useLanguage();
+  const { user } = useAuth();
 
-  const [mode, setMode] = useState<"text" | "voice">("text");
+  const [mode, setMode] = useState<"text" | "voice" | "file">("text");
   const [topic, setTopic] = useState("");
   const [level, setLevel] = useState<Level>("auto");
   const [explanation, setExplanation] = useState("");
@@ -275,6 +351,10 @@ export default function TryEcho() {
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const [micError, setMicError] = useState<string | null>(null);
 
+  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+  const [filePreviewUrl, setFilePreviewUrl] = useState<string | null>(null);
+  const [fileError, setFileError] = useState<string | null>(null);
+
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
   const autoStopTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -285,6 +365,12 @@ export default function TryEcho() {
       if (autoStopTimeoutRef.current) clearTimeout(autoStopTimeoutRef.current);
     };
   }, [audioUrl]);
+
+  useEffect(() => {
+    return () => {
+      if (filePreviewUrl) URL.revokeObjectURL(filePreviewUrl);
+    };
+  }, [filePreviewUrl]);
 
   async function startRecording() {
     setMicError(null);
@@ -337,7 +423,35 @@ export default function TryEcho() {
     setRecordingState("idle");
   }
 
-  function switchMode(next: "text" | "voice") {
+  function handleFileChange(e: ChangeEvent<HTMLInputElement>) {
+    setFileError(null);
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!SUPPORTED_FILE_TYPES.includes(file.type)) {
+      setFileError(t.tryEcho.fileTypeError);
+      e.target.value = "";
+      return;
+    }
+    if (file.size > MAX_FILE_BYTES) {
+      setFileError(t.tryEcho.fileSizeError);
+      e.target.value = "";
+      return;
+    }
+
+    if (filePreviewUrl) URL.revokeObjectURL(filePreviewUrl);
+    setUploadedFile(file);
+    setFilePreviewUrl(file.type.startsWith("image/") ? URL.createObjectURL(file) : null);
+  }
+
+  function resetFile() {
+    if (filePreviewUrl) URL.revokeObjectURL(filePreviewUrl);
+    setUploadedFile(null);
+    setFilePreviewUrl(null);
+    setFileError(null);
+  }
+
+  function switchMode(next: "text" | "voice" | "file") {
     setMode(next);
     setStatus("idle");
     setFeedback(null);
@@ -349,12 +463,13 @@ export default function TryEcho() {
 
     if (mode === "text" && !explanation.trim()) return;
     if (mode === "voice" && !audioBlob) return;
+    if (mode === "file" && !uploadedFile) return;
 
     setStatus("loading");
     setErrorMessage(null);
 
     const trimmedTopic = topic.trim();
-    const previousScores = getPreviousScores(trimmedTopic);
+    const previousScores = await getPreviousScores(user?.id ?? null, trimmedTopic);
 
     try {
       let payload: Record<string, unknown>;
@@ -366,6 +481,17 @@ export default function TryEcho() {
           topic: trimmedTopic,
           audioBase64,
           audioMimeType: audioBlob.type || "audio/webm",
+          lang,
+          level,
+          previousScores,
+        };
+      } else if (mode === "file" && uploadedFile) {
+        const fileBase64 = await blobToBase64(uploadedFile);
+        payload = {
+          mode: "file",
+          topic: trimmedTopic,
+          fileBase64,
+          fileMimeType: uploadedFile.type,
           lang,
           level,
           previousScores,
@@ -392,7 +518,8 @@ export default function TryEcho() {
       const result: AnalysisResult = await res.json();
       setFeedback({ ...result, source: "ai" });
       setStatus("done");
-      saveAttempt(trimmedTopic, result.score);
+      const storedMode = mode === "voice" ? "audio" : mode;
+      await saveAttempt(user?.id ?? null, trimmedTopic, storedMode, level, result);
     } catch (err) {
       console.warn("Echo: analysis failed, falling back —", err);
 
@@ -407,7 +534,12 @@ export default function TryEcho() {
   }
 
   const canSubmit =
-    status !== "loading" && (mode === "text" ? explanation.trim().length > 0 : !!audioBlob);
+    status !== "loading" &&
+    (mode === "text"
+      ? explanation.trim().length > 0
+      : mode === "voice"
+      ? !!audioBlob
+      : !!uploadedFile);
 
   return (
     <section id="try" className="py-32 scroll-mt-24">
@@ -462,6 +594,17 @@ export default function TryEcho() {
                 }`}
               >
                 {t.tryEcho.modeVoice}
+              </button>
+              <button
+                type="button"
+                onClick={() => switchMode("file")}
+                className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
+                  mode === "file"
+                    ? "bg-black text-white dark:bg-white dark:text-black"
+                    : "text-gray-500 hover:text-black dark:text-gray-400 dark:hover:text-white"
+                }`}
+              >
+                {t.tryEcho.modeFile}
               </button>
             </div>
 
@@ -523,6 +666,58 @@ export default function TryEcho() {
                   placeholder={t.tryEcho.explanationPlaceholder}
                   className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-950 dark:placeholder-gray-600"
                 />
+              </div>
+            ) : mode === "file" ? (
+              <div className="rounded-xl border border-dashed border-gray-300 p-6 text-center dark:border-gray-700">
+
+                {!uploadedFile && (
+                  <>
+                    <label
+                      htmlFor="file-upload"
+                      className="inline-block cursor-pointer rounded-full bg-black px-6 py-3 font-semibold text-white transition hover:scale-105 dark:bg-white dark:text-black"
+                    >
+                      📎 {t.tryEcho.fileChoose}
+                    </label>
+                    <input
+                      id="file-upload"
+                      type="file"
+                      accept={SUPPORTED_FILE_TYPES.join(",")}
+                      onChange={handleFileChange}
+                      className="hidden"
+                    />
+                    <p className="mt-3 text-sm text-gray-500 dark:text-gray-400">
+                      {t.tryEcho.fileHint}
+                    </p>
+                  </>
+                )}
+
+                {uploadedFile && (
+                  <div className="space-y-3">
+                    {filePreviewUrl ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={filePreviewUrl}
+                        alt={uploadedFile.name}
+                        className="mx-auto max-h-48 rounded-lg object-contain"
+                      />
+                    ) : (
+                      <p className="text-4xl">📄</p>
+                    )}
+                    <p className="truncate text-sm text-gray-600 dark:text-gray-300">{uploadedFile.name}</p>
+                    <button
+                      type="button"
+                      onClick={resetFile}
+                      className="text-sm font-semibold text-blue-600 hover:underline dark:text-blue-400"
+                    >
+                      ↻ {t.tryEcho.fileChooseAnother}
+                    </button>
+                  </div>
+                )}
+
+                {fileError && (
+                  <p className="mt-3 text-sm text-red-600 dark:text-red-400">{fileError}</p>
+                )}
+
               </div>
             ) : (
               <div className="rounded-xl border border-dashed border-gray-300 p-6 text-center dark:border-gray-700">
@@ -646,6 +841,18 @@ export default function TryEcho() {
                   <div className="mt-4 rounded-xl bg-purple-50 p-3 text-sm text-purple-900 dark:bg-purple-500/10 dark:text-purple-200">
                     📈 <span className="font-semibold">{t.tryEcho.progressLabel}:</span>{" "}
                     {feedback.progressNote}
+                  </div>
+                )}
+
+                {feedback.source === "ai" && !user && isSupabaseConfigured && (
+                  <div className="mt-4 flex items-center justify-between gap-3 rounded-xl bg-blue-50 p-3 text-sm text-blue-900 dark:bg-blue-500/10 dark:text-blue-200">
+                    <span>💾 {t.tryEcho.signUpPrompt}</span>
+                    <Link
+                      href="/login"
+                      className="shrink-0 rounded-full bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-blue-700"
+                    >
+                      {t.auth.signInTitle}
+                    </Link>
                   </div>
                 )}
 
