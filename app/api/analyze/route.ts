@@ -47,7 +47,14 @@ type Feedback = {
 // Free tier, no billing/card required — get a key at
 // https://aistudio.google.com/apikey and put it in .env.local as
 // GEMINI_API_KEY=... (see .env.example).
-const GEMINI_MODEL = "gemini-2.0-flash";
+//
+// Google retires dated Gemini model IDs on a rolling basis (e.g.
+// gemini-2.0-flash was shut down June 1, 2026 — which is why real
+// analysis was silently failing and falling back to the offline mock).
+// "gemini-flash-latest" is a moving alias that always points at
+// whatever the current flash model is, so this doesn't have to be
+// updated by hand every time Google deprecates the pinned version.
+const GEMINI_MODEL = "gemini-flash-latest";
 const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`;
 
 const LANGUAGE_NAMES: Record<string, string> = {
@@ -240,6 +247,10 @@ export async function POST(req: NextRequest) {
           // Low temperature so the same explanation scores the same way
           // on repeat checks, per the "consistent grading" requirement.
           temperature: 0,
+          // The detailed feedback schema (mistakes, criteria, etc.) is
+          // long — without an explicit cap the response could get cut
+          // off mid-JSON and fail to parse.
+          maxOutputTokens: 4096,
         },
       }),
     });
@@ -252,13 +263,30 @@ export async function POST(req: NextRequest) {
     const data = await response.json();
     const text: string | undefined =
       data?.candidates?.[0]?.content?.parts?.[0]?.text;
+    const finishReason = data?.candidates?.[0]?.finishReason;
 
     if (!text) {
-      throw new Error("Gemini returned no text content");
+      console.error(
+        "Echo analyze error: Gemini returned no text content. Full response:",
+        JSON.stringify(data)
+      );
+      throw new Error(`Gemini returned no text content (finishReason: ${finishReason})`);
     }
 
-    const feedback = parseFeedback(text, mode === "audio");
-    return NextResponse.json(feedback);
+    try {
+      const feedback = parseFeedback(text, mode === "audio");
+      return NextResponse.json(feedback);
+    } catch (parseErr) {
+      // Log the raw model output so the exact cause (truncation,
+      // stray prose, wrong shape, etc.) is visible in server logs.
+      console.error(
+        "Echo analyze error: failed to parse model output. finishReason:",
+        finishReason,
+        "raw text:",
+        text
+      );
+      throw parseErr;
+    }
   } catch (err) {
     console.error("Echo analyze error:", err);
     return NextResponse.json(
