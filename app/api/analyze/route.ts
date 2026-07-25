@@ -53,10 +53,17 @@ type Feedback = {
 // Google retires dated Gemini model IDs on a rolling basis (e.g.
 // gemini-2.0-flash was shut down June 1, 2026 — which is why real
 // analysis was silently failing and falling back to the offline mock).
-// "gemini-flash-latest" is a moving alias that always points at
-// whatever the current flash model is, so this doesn't have to be
-// updated by hand every time Google deprecates the pinned version.
-const GEMINI_MODEL = "gemini-flash-latest";
+// Pinned to the current stable Flash-Lite model (confirmed at
+// https://ai.google.dev/gemini-api/docs/models as of July 2026) rather than
+// the rolling "gemini-flash-latest" alias: that alias currently points to
+// the flagship gemini-3.6-flash, whose free tier is capped at ~20
+// requests/day — a handful of people testing during a hackathon blows
+// through that in minutes. Flash-Lite is built for high-throughput,
+// low-cost use and carries a much higher free daily quota, at the cost of
+// being a slightly less powerful model — a good trade for this app's
+// grading task. If this model is ever deprecated, swap in whatever
+// Flash-Lite (or similarly cheap/high-quota) model is current then.
+const GEMINI_MODEL = "gemini-3.5-flash-lite";
 const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`;
 
 const LANGUAGE_NAMES: Record<string, string> = {
