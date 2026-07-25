@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 
 export const runtime = "nodejs";
 
+type Level = "beginner" | "intermediate" | "advanced" | "auto";
+type Cause = "theory" | "carelessness" | "misreading" | "logic" | "calculation";
+
 type AnalyzeRequestBody = {
   mode?: "text" | "audio";
   topic?: string;
@@ -9,12 +12,34 @@ type AnalyzeRequestBody = {
   audioBase64?: string;
   audioMimeType?: string;
   lang?: "en" | "ru" | "tg";
+  level?: Level;
+  previousScores?: number[];
+};
+
+type Mistake = {
+  issue: string;
+  whyWrong: string;
+  correction: string;
+  cause: Cause;
+};
+
+type Criterion = {
+  name: string;
+  score: number;
+  comment: string;
 };
 
 type Feedback = {
   score: number;
+  summary: string;
   strengths: string[];
-  gaps: string[];
+  mistakes: Mistake[];
+  criteria: Criterion[];
+  recommendations: string[];
+  reviewTopics: string[];
+  practiceExamples: string[];
+  progressNote: string;
+  motivation: string;
   followUp: string;
   transcript?: string;
 };
@@ -31,32 +56,100 @@ const LANGUAGE_NAMES: Record<string, string> = {
   tg: "Tajik",
 };
 
-function buildSystemPrompt(languageName: string, includeTranscript: boolean) {
+const CAUSE_VALUES: Cause[] = [
+  "theory",
+  "carelessness",
+  "misreading",
+  "logic",
+  "calculation",
+];
+
+const LEVEL_INSTRUCTIONS: Record<Level, string> = {
+  beginner:
+    "The student self-identifies as a BEGINNER. Use the simplest possible language, explain every term you use, keep the explanation of correct answers very step-by-step, and be extra encouraging in tone.",
+  intermediate:
+    "The student self-identifies as INTERMEDIATE. Assume basic vocabulary is known. Give a deeper analysis, point out subtler issues, and don't over-explain the basics.",
+  advanced:
+    "The student self-identifies as ADVANCED. Use precise, professional/technical language. Focus on rigor, edge cases, optimization, and nuance rather than basics — treat them as a peer.",
+  auto: "The student did not specify a level. Infer their likely level from the vocabulary, depth, and correctness of their explanation, and adapt your tone and depth accordingly. Do not mention that you inferred it.",
+};
+
+function buildSystemPrompt(
+  languageName: string,
+  includeTranscript: boolean,
+  level: Level,
+  previousScores: number[]
+): string {
   const transcriptField = includeTranscript
     ? `\n  "transcript": <a faithful text transcription of what the student said, in the language they spoke>,`
     : "";
 
   const audioNote = includeTranscript
-    ? "You will be given an audio recording of a student explaining a topic out loud, instead of written text. First transcribe what they said, then assess it exactly as you would a written explanation."
+    ? "You will be given an audio recording of a student explaining a topic out loud, instead of written text. First transcribe what they said, then assess it exactly as you would a written explanation.\n\n"
     : "";
 
-  return `You are Echo, an AI learning coach built on the Feynman technique: a student truly understands a topic once they can explain it in their own words, and gaps in their explanation reveal gaps in their understanding.
+  const progressNote =
+    previousScores.length > 0
+      ? `The student's previous scores on this exact topic, oldest to newest, were: ${JSON.stringify(
+          previousScores
+        )}. In "progressNote", explicitly compare the current score to this history — say whether they're improving, plateauing, or regressing, by roughly how much, in one or two sentences.`
+      : `This is the student's first recorded attempt on this topic (no history yet). Set "progressNote" to a short, friendly note saying so — do not invent a comparison.`;
 
-${audioNote}
+  return `You are Echo, an AI learning coach built on the Feynman technique: a student truly understands a topic once they can explain it in their own words, and the specific gaps in their explanation reveal the specific gaps in their understanding.
 
-You will be given a topic and the student's explanation of it. Assess how solid their understanding actually is, based only on what they said — not on how polished the delivery is.
+${audioNote}Your job is to give a fully individualized, non-generic analysis of ONE student's explanation of ONE topic — never a templated response. Judge based on everything they actually wrote/said: correctness, completeness, logical coherence, accurate use of terms and concepts, and the quality of their reasoning process, not just whether the final "answer" sounds right.
 
-Respond with ONLY a JSON object matching exactly this shape:
+${LEVEL_INSTRUCTIONS[level]}
+
+${progressNote}
+
+## Scoring (0–100)
+
+Use the full 0–100 scale honestly and consistently — do not cluster scores near round numbers out of politeness. Two identical explanations must always receive the identical score. The scale means:
+- 0–20: the explanation barely meets the requirements of the topic.
+- 21–40: only a small part is covered correctly; many mistakes.
+- 41–60: average — there are significant gaps.
+- 61–80: good, but with some mistakes or inaccuracies.
+- 81–90: very good, only minor notes.
+- 91–99: nearly flawless.
+- 100: fully correct and complete, no mistakes at all.
+
+Give partial credit for partially correct reasoning — never grade as pure pass/fail. Weigh a conceptual/foundational mistake more heavily than a minor wording slip.
+
+## What to evaluate
+
+Score against 3–6 criteria you choose as relevant to this specific topic and explanation (e.g. correctness, completeness, logical coherence, correct use of terminology/concepts, quality of the reasoning process/argumentation, and — only if the explanation involves a calculation or formula — computational accuracy). Each criterion gets its own 0–100 sub-score and a one-sentence justification.
+
+For every distinct mistake you find (factual error, missing concept, vague claim, logical gap, miscalculation, misunderstanding of the topic itself), classify its root cause as exactly one of: "theory" (gap in theoretical knowledge), "carelessness", "misreading" (misunderstood what the topic/task actually asks), "logic" (flawed reasoning step), or "calculation" (arithmetic/computational error). If there truly are no mistakes, return an empty "mistakes" array.
+
+## Output format
+
+Respond with ONLY a JSON object, no markdown fences, no commentary, matching exactly this shape:
 {${transcriptField}
-  "score": <integer 0-100, how solid their understanding is>,
-  "strengths": [<1 to 3 short strings, specific things they got right>],
-  "gaps": [<1 to 3 short strings, specific missing, vague, or incorrect concepts>],
-  "followUp": <one targeted question that would push the student to close the biggest gap themselves>
+  "score": <integer 0-100>,
+  "summary": <2-3 sentence overall verdict covering both strengths and weaknesses>,
+  "strengths": [<1-4 short strings — specific things the student got right, not generic praise>],
+  "mistakes": [
+    {
+      "issue": <what specifically was wrong, vague, or missing>,
+      "whyWrong": <why that is incorrect, explained clearly>,
+      "correction": <the correct explanation of that point, in simple step-by-step language matching the student's level>,
+      "cause": <one of "theory" | "carelessness" | "misreading" | "logic" | "calculation">
+    }
+  ],
+  "criteria": [
+    { "name": <criterion name>, "score": <0-100>, "comment": <one sentence justification> }
+  ],
+  "recommendations": [<1-4 short, personalized action items that target THIS student's specific weak spots — not generic study tips>],
+  "reviewTopics": [<0-3 short names of prerequisite or related topics worth revisiting, based on the gaps found>],
+  "practiceExamples": [<0-3 short example prompts/questions the student could practice next on this same topic, to reinforce what they got wrong>],
+  "followUp": <one targeted question that would push the student to close their single biggest gap themselves>,
+  "motivation": <one honest, specific, non-generic motivational sentence — acknowledge real effort or real progress, do not praise for its own sake, and do not be discouraging even for a low score>
 }
 
-Write all string values (strengths, gaps, followUp${includeTranscript ? ", transcript" : ""}) in ${languageName}, regardless of what language the student used, unless transcribing — the transcript should stay in whatever language the student actually spoke.
+Write every string value in ${languageName}, except "transcript" (if present), which should stay in whatever language the student actually spoke, and except the "cause" field, which must always be exactly one of the five English enum values listed above.
 
-Be concrete and reference what they actually said rather than giving generic advice. If the explanation is empty, nonsensical, or clearly unrelated to the topic, score it low and say so plainly in "gaps".`;
+Be concrete and reference what the student actually wrote/said. If the explanation is empty, nonsensical, or clearly unrelated to the topic, score it low, explain plainly why in "mistakes", and keep "strengths" as an empty array rather than inventing one.`;
 }
 
 export async function POST(req: NextRequest) {
@@ -71,6 +164,14 @@ export async function POST(req: NextRequest) {
   const mode = body.mode === "audio" ? "audio" : "text";
   const topic = (body.topic ?? "").trim();
   const languageName = LANGUAGE_NAMES[body.lang ?? "en"] ?? "English";
+  const level: Level = ["beginner", "intermediate", "advanced", "auto"].includes(
+    body.level ?? ""
+  )
+    ? (body.level as Level)
+    : "auto";
+  const previousScores = Array.isArray(body.previousScores)
+    ? body.previousScores.filter((n) => typeof n === "number").slice(-5)
+    : [];
 
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
@@ -127,11 +228,18 @@ export async function POST(req: NextRequest) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         system_instruction: {
-          parts: [{ text: buildSystemPrompt(languageName, mode === "audio") }],
+          parts: [
+            {
+              text: buildSystemPrompt(languageName, mode === "audio", level, previousScores),
+            },
+          ],
         },
         contents: [{ role: "user", parts: requestParts }],
         generationConfig: {
           responseMimeType: "application/json",
+          // Low temperature so the same explanation scores the same way
+          // on repeat checks, per the "consistent grading" requirement.
+          temperature: 0,
         },
       }),
     });
@@ -160,6 +268,16 @@ export async function POST(req: NextRequest) {
   }
 }
 
+function clampScore(value: unknown): number {
+  const n = typeof value === "number" && Number.isFinite(value) ? value : 0;
+  return Math.max(0, Math.min(100, Math.round(n)));
+}
+
+function toStringArray(value: unknown, max: number): string[] {
+  if (!Array.isArray(value)) return [];
+  return value.slice(0, max).map(String);
+}
+
 function parseFeedback(raw: string, expectTranscript: boolean): Feedback {
   const cleaned = raw
     .trim()
@@ -169,20 +287,39 @@ function parseFeedback(raw: string, expectTranscript: boolean): Feedback {
 
   const parsed = JSON.parse(cleaned);
 
-  if (
-    typeof parsed.score !== "number" ||
-    !Array.isArray(parsed.strengths) ||
-    !Array.isArray(parsed.gaps) ||
-    typeof parsed.followUp !== "string"
-  ) {
+  if (typeof parsed.score !== "number" || typeof parsed.summary !== "string") {
     throw new Error("Model response did not match the expected shape");
   }
 
+  const mistakes: Mistake[] = Array.isArray(parsed.mistakes)
+    ? parsed.mistakes.slice(0, 6).map((m: Record<string, unknown>) => ({
+        issue: String(m?.issue ?? ""),
+        whyWrong: String(m?.whyWrong ?? ""),
+        correction: String(m?.correction ?? ""),
+        cause: CAUSE_VALUES.includes(m?.cause as Cause) ? (m.cause as Cause) : "theory",
+      }))
+    : [];
+
+  const criteria: Criterion[] = Array.isArray(parsed.criteria)
+    ? parsed.criteria.slice(0, 8).map((c: Record<string, unknown>) => ({
+        name: String(c?.name ?? ""),
+        score: clampScore(c?.score),
+        comment: String(c?.comment ?? ""),
+      }))
+    : [];
+
   const feedback: Feedback = {
-    score: Math.max(0, Math.min(100, Math.round(parsed.score))),
-    strengths: parsed.strengths.slice(0, 3).map(String),
-    gaps: parsed.gaps.slice(0, 3).map(String),
-    followUp: String(parsed.followUp),
+    score: clampScore(parsed.score),
+    summary: String(parsed.summary),
+    strengths: toStringArray(parsed.strengths, 4),
+    mistakes,
+    criteria,
+    recommendations: toStringArray(parsed.recommendations, 4),
+    reviewTopics: toStringArray(parsed.reviewTopics, 3),
+    practiceExamples: toStringArray(parsed.practiceExamples, 3),
+    progressNote: typeof parsed.progressNote === "string" ? parsed.progressNote : "",
+    motivation: typeof parsed.motivation === "string" ? parsed.motivation : "",
+    followUp: typeof parsed.followUp === "string" ? parsed.followUp : "",
   };
 
   if (expectTranscript && typeof parsed.transcript === "string") {

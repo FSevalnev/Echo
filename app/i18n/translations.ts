@@ -48,6 +48,11 @@ export type Dictionary = {
     topicPlaceholder: string;
     explanationLabel: string;
     explanationPlaceholder: string;
+    levelLabel: string;
+    levelBeginner: string;
+    levelIntermediate: string;
+    levelAdvanced: string;
+    levelAuto: string;
     submit: string;
     submitting: string;
     recordStart: string;
@@ -64,6 +69,32 @@ export type Dictionary = {
     transcriptLabel: string;
     micError: string;
     apiError: string;
+    scoreBands: {
+      veryLow: string;
+      low: string;
+      medium: string;
+      good: string;
+      veryGood: string;
+      excellent: string;
+      perfect: string;
+    };
+    causeLabels: {
+      theory: string;
+      carelessness: string;
+      misreading: string;
+      logic: string;
+      calculation: string;
+    };
+    mistakesTitle: string;
+    noMistakes: string;
+    whyWrongLabel: string;
+    correctionLabel: string;
+    criteriaTitle: string;
+    recommendationsTitle: string;
+    reviewTopicsTitle: string;
+    practiceTitle: string;
+    progressLabel: string;
+    noHistory: string;
   };
   footer: {
     tagline: string;
@@ -154,6 +185,11 @@ export const translations: Record<Lang, Dictionary> = {
       explanationLabel: "Your explanation",
       explanationPlaceholder:
         "Explain it in your own words, like you're teaching someone who's never heard of it...",
+      levelLabel: "Your level",
+      levelBeginner: "Beginner",
+      levelIntermediate: "Intermediate",
+      levelAdvanced: "Advanced",
+      levelAuto: "Not sure — let AI decide",
       submit: "Check My Understanding",
       submitting: "Analyzing...",
       recordStart: "Start Recording",
@@ -170,6 +206,32 @@ export const translations: Record<Lang, Dictionary> = {
       transcriptLabel: "What Echo heard:",
       micError: "Couldn't access the microphone. Check your browser permissions.",
       apiError: "Couldn't reach Echo. Try again or switch to text.",
+      scoreBands: {
+        veryLow: "The work barely meets the requirements.",
+        low: "Only a small part of the task was completed; there are many mistakes.",
+        medium: "Average level — there are significant gaps.",
+        good: "Good work, but with some mistakes or inaccuracies.",
+        veryGood: "Very good result with only minor notes.",
+        excellent: "Nearly flawless work.",
+        perfect: "Fully meets every criterion, no mistakes or issues.",
+      },
+      causeLabels: {
+        theory: "Gap in theoretical knowledge",
+        carelessness: "Carelessness",
+        misreading: "Misread or misunderstood the task",
+        logic: "Logical error",
+        calculation: "Calculation error",
+      },
+      mistakesTitle: "Mistake breakdown",
+      noMistakes: "No mistakes found — nice work.",
+      whyWrongLabel: "Why it's wrong:",
+      correctionLabel: "Correct explanation:",
+      criteriaTitle: "Scoring criteria",
+      recommendationsTitle: "Personal recommendations",
+      reviewTopicsTitle: "Topics to review",
+      practiceTitle: "Practice with similar examples",
+      progressLabel: "Progress",
+      noHistory: "This is your first attempt on this topic — no history yet.",
     },
     footer: {
       tagline:
@@ -260,6 +322,11 @@ export const translations: Record<Lang, Dictionary> = {
       explanationLabel: "Твоё объяснение",
       explanationPlaceholder:
         "Объясни своими словами, как будто учишь того, кто никогда об этом не слышал...",
+      levelLabel: "Твой уровень",
+      levelBeginner: "Новичок",
+      levelIntermediate: "Средний",
+      levelAdvanced: "Продвинутый",
+      levelAuto: "Не уверен — пусть решит AI",
       submit: "Проверить понимание",
       submitting: "Анализирую...",
       recordStart: "Начать запись",
@@ -276,6 +343,32 @@ export const translations: Record<Lang, Dictionary> = {
       transcriptLabel: "Что услышал Echo:",
       micError: "Не удалось получить доступ к микрофону. Проверь разрешения браузера.",
       apiError: "Не удалось связаться с Echo. Попробуй ещё раз или переключись на текст.",
+      scoreBands: {
+        veryLow: "Работа практически не соответствует требованиям.",
+        low: "Выполнена небольшая часть задания, присутствует большое количество ошибок.",
+        medium: "Средний уровень — имеются существенные пробелы.",
+        good: "Хорошее выполнение, но присутствуют отдельные ошибки или неточности.",
+        veryGood: "Очень хороший результат с незначительными замечаниями.",
+        excellent: "Практически идеальная работа.",
+        perfect: "Полностью соответствует всем критериям, без ошибок и недочётов.",
+      },
+      causeLabels: {
+        theory: "Пробел в теоретических знаниях",
+        carelessness: "Невнимательность",
+        misreading: "Неверно понял(а) задание",
+        logic: "Логическая ошибка",
+        calculation: "Вычислительная ошибка",
+      },
+      mistakesTitle: "Разбор ошибок",
+      noMistakes: "Ошибок не найдено — отличная работа.",
+      whyWrongLabel: "Почему это неверно:",
+      correctionLabel: "Правильное объяснение:",
+      criteriaTitle: "Критерии оценки",
+      recommendationsTitle: "Персональные рекомендации",
+      reviewTopicsTitle: "Темы для повторения",
+      practiceTitle: "Похожие задания для практики",
+      progressLabel: "Прогресс",
+      noHistory: "Это твоя первая попытка по этой теме — истории пока нет.",
     },
     footer: {
       tagline: "Учись, объясняя. ИИ-фидбек находит твои пробелы и помогает их закрыть.",
@@ -365,6 +458,11 @@ export const translations: Record<Lang, Dictionary> = {
       explanationLabel: "Шарҳи шумо",
       explanationPlaceholder:
         "Бо суханони худ шарҳ диҳед, гӯё ба касе меомӯзонед, ки ҳеҷ гоҳ дар бораи он нашунидааст...",
+      levelLabel: "Сатҳи шумо",
+      levelBeginner: "Навомӯз",
+      levelIntermediate: "Миёна",
+      levelAdvanced: "Пешрафта",
+      levelAuto: "Мутмаин нестам — бигзор AI ҳал кунад",
       submit: "Фаҳмиши маро санҷед",
       submitting: "Таҳлил шуда истодааст...",
       recordStart: "Сабтро оғоз кунед",
@@ -381,6 +479,32 @@ export const translations: Record<Lang, Dictionary> = {
       transcriptLabel: "Он чи Echo шунид:",
       micError: "Дастрасӣ ба микрофон имконнопазир аст. Иҷозатҳои браузерро тафтиш кунед.",
       apiError: "Пайваст шудан бо Echo имконнопазир шуд. Дубора кӯшиш кунед ё ба матн гузаред.",
+      scoreBands: {
+        veryLow: "Кор амалан ба талаботҳо мувофиқат намекунад.",
+        low: "Қисми хурди супориш иҷро шудааст, хатоҳои зиёд мавҷуданд.",
+        medium: "Сатҳи миёна — норасоиҳои ҷиддӣ мавҷуданд.",
+        good: "Иҷрои хуб, аммо хатоҳо ё нодурустиҳои алоҳида мавҷуданд.",
+        veryGood: "Натиҷаи хеле хуб бо эродҳои ночиз.",
+        excellent: "Кори қариб беками.",
+        perfect: "Пурра ба ҳама меъёрҳо мувофиқат мекунад, бе хато ва камбудӣ.",
+      },
+      causeLabels: {
+        theory: "Норасоии дониши назариявӣ",
+        carelessness: "Бепарвоӣ",
+        misreading: "Супоришро нодуруст фаҳмидааст",
+        logic: "Хатои мантиқӣ",
+        calculation: "Хатои ҳисобкунӣ",
+      },
+      mistakesTitle: "Таҳлили хатоҳо",
+      noMistakes: "Хато ёфт нашуд — кори аъло.",
+      whyWrongLabel: "Чаро нодуруст аст:",
+      correctionLabel: "Шарҳи дуруст:",
+      criteriaTitle: "Меъёрҳои баҳогузорӣ",
+      recommendationsTitle: "Тавсияҳои шахсӣ",
+      reviewTopicsTitle: "Мавзӯъҳо барои такрор",
+      practiceTitle: "Машқҳои монанд барои мустаҳкамкунӣ",
+      progressLabel: "Пешрафт",
+      noHistory: "Ин кӯшиши аввалини шумо оид ба ин мавзӯъ аст — таърих ҳанӯз нест.",
     },
     footer: {
       tagline:
