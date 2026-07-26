@@ -34,7 +34,7 @@ export default function Hero() {
 
         {/* LEFT */}
 
-        <div>
+        <div className="animate-fade-in-up">
 
           <div className="inline-flex items-center rounded-full bg-blue-100 px-4 py-2 text-sm font-medium text-blue-700 dark:bg-blue-500/10 dark:text-blue-300">
             {t.hero.badge}
@@ -58,14 +58,14 @@ export default function Hero() {
 
             <a
               href="#try"
-              className="rounded-full bg-black px-8 py-4 text-lg font-semibold text-white transition hover:scale-105 dark:bg-white dark:text-black"
+              className="rounded-full bg-black px-8 py-4 text-lg font-semibold text-white transition duration-300 ease-out hover:scale-105 hover:shadow-xl active:scale-100 dark:bg-white dark:text-black"
             >
               {t.hero.ctaStart}
             </a>
 
             <a
               href="#how-it-works"
-              className="rounded-full border border-gray-300 px-8 py-4 text-lg font-semibold transition hover:bg-gray-100 dark:border-gray-700 dark:hover:bg-gray-800"
+              className="rounded-full border border-gray-300 px-8 py-4 text-lg font-semibold transition duration-300 ease-out hover:scale-105 hover:bg-gray-100 active:scale-100 dark:border-gray-700 dark:hover:bg-gray-800"
             >
               {t.hero.ctaDemo}
             </a>
@@ -76,7 +76,10 @@ export default function Hero() {
 
         {/* RIGHT */}
 
-        <div className="rounded-3xl border border-gray-200 bg-white shadow-2xl p-8 dark:border-gray-800 dark:bg-gray-900">
+        <div
+          className="animate-fade-in-up rounded-3xl border border-gray-200 bg-white shadow-2xl p-8 transition-shadow duration-500 hover:shadow-[0_20px_60px_-15px_rgba(37,99,235,0.35)] dark:border-gray-800 dark:bg-gray-900"
+          style={{ animationDelay: "150ms" }}
+        >
 
           <p className="text-sm text-gray-500 dark:text-gray-400">
             {t.hero.cardLabel}
@@ -92,7 +95,7 @@ export default function Hero() {
 
           <div className="mt-6 h-3 rounded-full bg-gray-200 overflow-hidden dark:bg-gray-800">
 
-            <div className="h-full w-[92%] rounded-full bg-blue-600 dark:bg-blue-500"></div>
+            <div className="animate-grow-bar h-full w-[92%] rounded-full bg-blue-600 dark:bg-blue-500"></div>
 
           </div>
 

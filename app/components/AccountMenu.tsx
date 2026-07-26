@@ -54,7 +54,7 @@ export default function AccountMenu() {
         aria-label={t.auth.profile}
         aria-expanded={open}
         title={user.email ?? undefined}
-        className="grid h-10 w-10 place-items-center overflow-hidden rounded-full bg-black text-sm font-semibold text-white transition hover:scale-105 dark:bg-white dark:text-black"
+        className="grid h-10 w-10 place-items-center overflow-hidden rounded-full bg-black text-sm font-semibold text-white transition duration-300 ease-out hover:scale-105 dark:bg-white dark:text-black"
       >
         {avatarUrl ? (
           // eslint-disable-next-line @next/next/no-img-element

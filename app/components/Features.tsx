@@ -1,6 +1,7 @@
 "use client";
 
 import { useLanguage } from "../i18n/LanguageContext";
+import Reveal from "./Reveal";
 
 export default function Features() {
   const { t } = useLanguage();
@@ -11,7 +12,7 @@ export default function Features() {
 
       <div className="max-w-7xl mx-auto px-6">
 
-        <div className="text-center">
+        <Reveal className="text-center">
 
           <p className="text-blue-600 font-semibold uppercase tracking-widest dark:text-blue-400">
             {t.features.eyebrow}
@@ -25,27 +26,26 @@ export default function Features() {
             {t.features.subtitle}
           </p>
 
-        </div>
+        </Reveal>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mt-20">
 
           {features.map((feature, index) => (
-            <div
-              key={index}
-              className="rounded-3xl bg-white p-8 shadow-sm border border-gray-100 hover:-translate-y-2 hover:shadow-xl transition dark:bg-gray-900 dark:border-gray-800"
-            >
-              <div className="text-5xl">
-                {feature.emoji}
+            <Reveal key={index} delayMs={(index % 3) * 100}>
+              <div className="h-full rounded-3xl bg-white p-8 shadow-sm border border-gray-100 transition-all duration-300 ease-out hover:-translate-y-2 hover:shadow-xl dark:bg-gray-900 dark:border-gray-800">
+                <div className="text-5xl">
+                  {feature.emoji}
+                </div>
+
+                <h3 className="mt-6 text-2xl font-bold">
+                  {feature.title}
+                </h3>
+
+                <p className="mt-4 text-gray-500 dark:text-gray-400">
+                  {feature.text}
+                </p>
               </div>
-
-              <h3 className="mt-6 text-2xl font-bold">
-                {feature.title}
-              </h3>
-
-              <p className="mt-4 text-gray-500 dark:text-gray-400">
-                {feature.text}
-              </p>
-            </div>
+            </Reveal>
           ))}
 
         </div>

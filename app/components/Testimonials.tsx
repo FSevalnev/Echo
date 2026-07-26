@@ -17,6 +17,7 @@ import { useAuth, isSupabaseConfigured } from "../auth/AuthContext";
 import { createClient } from "../../lib/supabase/client";
 import { useLanguage } from "../i18n/LanguageContext";
 import type { Review } from "../../lib/reviews";
+import Reveal from "./Reveal";
 
 const STAR_VALUES = [1, 2, 3, 4, 5];
 
@@ -132,7 +133,8 @@ export default function Testimonials() {
   return (
     <section id="reviews" className="relative overflow-hidden bg-gradient-to-b from-gray-950 to-black py-20 scroll-mt-24">
       <div className="mx-auto mb-14 max-w-lg px-6">
-        <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-6 backdrop-blur-md">
+        <Reveal>
+        <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-6 backdrop-blur-md transition-shadow duration-500 hover:shadow-[0_0_50px_-12px_rgba(99,102,241,0.35)]">
           <h3 className="text-lg font-semibold text-white">{t.reviews.leaveReviewTitle}</h3>
 
           {!authLoading && !user && (
@@ -140,7 +142,7 @@ export default function Testimonials() {
               <p className="text-sm text-gray-400">{t.reviews.signInPrompt}</p>
               <Link
                 href="/login"
-                className="mt-3 inline-block rounded-full bg-white px-5 py-2 text-sm font-semibold text-black transition hover:scale-105"
+                className="mt-3 inline-block rounded-full bg-white px-5 py-2 text-sm font-semibold text-black transition duration-300 ease-out hover:scale-105"
               >
                 {t.auth.signInTitle}
               </Link>
@@ -190,13 +192,14 @@ export default function Testimonials() {
               <button
                 type="submit"
                 disabled={submitting}
-                className="w-full rounded-full bg-white px-6 py-2.5 text-sm font-semibold text-black transition hover:scale-105 disabled:opacity-50"
+                className="w-full rounded-full bg-white px-6 py-2.5 text-sm font-semibold text-black transition duration-300 ease-out hover:scale-105 disabled:opacity-50"
               >
                 {submitting ? t.reviews.submitting : t.reviews.submit}
               </button>
             </form>
           )}
         </div>
+        </Reveal>
       </div>
 
       {!loadingReviews && reviews.length === 0 && (

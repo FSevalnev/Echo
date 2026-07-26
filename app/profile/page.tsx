@@ -198,7 +198,7 @@ export default function ProfilePage() {
             <p className="text-gray-600 dark:text-gray-300">{t.history.signInPrompt}</p>
             <Link
               href="/login"
-              className="mt-4 inline-block rounded-full bg-black px-6 py-3 font-semibold text-white transition hover:scale-105 dark:bg-white dark:text-black"
+              className="mt-4 inline-block rounded-full bg-black px-6 py-3 font-semibold text-white transition duration-300 ease-out hover:scale-105 dark:bg-white dark:text-black"
             >
               {t.auth.signInTitle}
             </Link>
@@ -272,7 +272,7 @@ export default function ProfilePage() {
               <button
                 type="submit"
                 disabled={nameStatus === "saving"}
-                className="rounded-full bg-black px-6 py-2.5 text-sm font-semibold text-white transition hover:scale-105 disabled:opacity-50 dark:bg-white dark:text-black"
+                className="rounded-full bg-black px-6 py-2.5 text-sm font-semibold text-white transition duration-300 ease-out hover:scale-105 disabled:opacity-50 dark:bg-white dark:text-black"
               >
                 {nameStatus === "saving" ? t.auth.submitting : t.auth.saveChanges}
               </button>
@@ -318,7 +318,7 @@ export default function ProfilePage() {
               <button
                 type="submit"
                 disabled={passStatus === "saving" || !newPassword}
-                className="rounded-full bg-black px-6 py-2.5 text-sm font-semibold text-white transition hover:scale-105 disabled:opacity-50 dark:bg-white dark:text-black"
+                className="rounded-full bg-black px-6 py-2.5 text-sm font-semibold text-white transition duration-300 ease-out hover:scale-105 disabled:opacity-50 dark:bg-white dark:text-black"
               >
                 {passStatus === "saving" ? t.auth.submitting : t.auth.saveChanges}
               </button>

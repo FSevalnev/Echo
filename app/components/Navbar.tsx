@@ -73,7 +73,7 @@ export default function Navbar() {
 
           <a
             href="#try"
-            className="bg-black text-white rounded-full px-6 py-3 hover:scale-105 transition dark:bg-white dark:text-black whitespace-nowrap"
+            className="bg-black text-white rounded-full px-6 py-3 transition duration-300 ease-out hover:scale-105 dark:bg-white dark:text-black whitespace-nowrap"
           >
             {t.nav.tryEcho}
           </a>

@@ -188,7 +188,7 @@ export default function RoomsPage() {
             <p className="text-gray-600 dark:text-gray-300">{t.rooms.signInPrompt}</p>
             <Link
               href="/login"
-              className="mt-4 inline-block rounded-full bg-black px-6 py-3 font-semibold text-white transition hover:scale-105 dark:bg-white dark:text-black"
+              className="mt-4 inline-block rounded-full bg-black px-6 py-3 font-semibold text-white transition duration-300 ease-out hover:scale-105 dark:bg-white dark:text-black"
             >
               {t.auth.signInTitle}
             </Link>
@@ -305,7 +305,7 @@ export default function RoomsPage() {
               <button
                 type="submit"
                 disabled={creating}
-                className="w-full rounded-full bg-black px-6 py-3 font-semibold text-white transition hover:scale-105 disabled:opacity-50 dark:bg-white dark:text-black"
+                className="w-full rounded-full bg-black px-6 py-3 font-semibold text-white transition duration-300 ease-out hover:scale-105 disabled:opacity-50 dark:bg-white dark:text-black"
               >
                 {creating ? t.rooms.creating : t.rooms.createSubmit}
               </button>

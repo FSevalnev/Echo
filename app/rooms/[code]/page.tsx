@@ -514,7 +514,7 @@ export default function RoomPage() {
           <p className="text-gray-600 dark:text-gray-300">{t.rooms.signInPrompt}</p>
           <Link
             href="/login"
-            className="mt-4 inline-block rounded-full bg-black px-6 py-3 font-semibold text-white transition hover:scale-105 dark:bg-white dark:text-black"
+            className="mt-4 inline-block rounded-full bg-black px-6 py-3 font-semibold text-white transition duration-300 ease-out hover:scale-105 dark:bg-white dark:text-black"
           >
             {t.auth.signInTitle}
           </Link>
@@ -560,7 +560,7 @@ export default function RoomPage() {
 
         {/* LOBBY */}
         {room.status === "lobby" && (
-          <div className="mt-8 space-y-6">
+          <div className="mt-8 space-y-6 animate-fade-in-up">
             <div className="rounded-3xl border border-gray-200 bg-white p-6 text-center dark:border-gray-800 dark:bg-gray-900">
               <p className="text-sm text-gray-500 dark:text-gray-400">{t.rooms.shareHint}</p>
               <p className="mt-2 text-4xl font-bold tracking-widest">{room.code}</p>
@@ -601,7 +601,7 @@ export default function RoomPage() {
                 <button
                   onClick={startRound}
                   disabled={starting}
-                  className="w-full rounded-full bg-black px-6 py-3 font-semibold text-white transition hover:scale-105 disabled:opacity-50 dark:bg-white dark:text-black"
+                  className="w-full rounded-full bg-black px-6 py-3 font-semibold text-white transition duration-300 ease-out hover:scale-105 disabled:opacity-50 dark:bg-white dark:text-black"
                 >
                   {starting ? t.rooms.starting : t.rooms.startRound}
                 </button>
@@ -614,7 +614,7 @@ export default function RoomPage() {
 
         {/* IN ROUND */}
         {room.status === "in_round" && currentRound && (
-          <div className="mt-8 space-y-6">
+          <div className="mt-8 space-y-6 animate-fade-in-up">
             <div className="flex items-center justify-between rounded-2xl border border-gray-200 bg-white px-5 py-4 dark:border-gray-800 dark:bg-gray-900">
               <span className="font-semibold">
                 {t.rooms.roundLabel} {room.current_round} {t.rooms.ofLabel} {room.total_rounds}
@@ -668,7 +668,7 @@ export default function RoomPage() {
                       <button
                         type="button"
                         onClick={startRecording}
-                        className="rounded-full bg-black px-6 py-3 font-semibold text-white transition hover:scale-105 dark:bg-white dark:text-black"
+                        className="rounded-full bg-black px-6 py-3 font-semibold text-white transition duration-300 ease-out hover:scale-105 dark:bg-white dark:text-black"
                       >
                         🎙️ {t.tryEcho.recordStart}
                       </button>
@@ -679,7 +679,7 @@ export default function RoomPage() {
                         <button
                           type="button"
                           onClick={stopRecording}
-                          className="animate-pulse rounded-full bg-red-600 px-6 py-3 font-semibold text-white transition hover:scale-105"
+                          className="animate-pulse rounded-full bg-red-600 px-6 py-3 font-semibold text-white transition duration-300 ease-out hover:scale-105"
                         >
                           ⏹ {t.tryEcho.recordStop}
                         </button>
@@ -754,7 +754,7 @@ export default function RoomPage() {
                       ? !voiceTranscript.trim()
                       : !(transcribeStatus === "error" && audioBlob))
                   }
-                  className="w-full rounded-full bg-black px-6 py-3 font-semibold text-white transition hover:scale-105 disabled:opacity-50 dark:bg-white dark:text-black"
+                  className="w-full rounded-full bg-black px-6 py-3 font-semibold text-white transition duration-300 ease-out hover:scale-105 disabled:opacity-50 dark:bg-white dark:text-black"
                 >
                   {submitting ? t.rooms.submittingAnswer : t.rooms.submitAnswer}
                 </button>
@@ -774,7 +774,7 @@ export default function RoomPage() {
 
         {/* ROUND RESULTS */}
         {room.status === "round_results" && currentRound && (
-          <div className="mt-8 space-y-6">
+          <div className="mt-8 space-y-6 animate-fade-in-up">
             <h2 className="text-xl font-semibold">
               {t.rooms.leaderboardTitle} — {t.rooms.roundLabel} {room.current_round}
             </h2>
@@ -838,14 +838,14 @@ export default function RoomPage() {
                 <button
                   onClick={startRound}
                   disabled={starting}
-                  className="w-full rounded-full bg-black px-6 py-3 font-semibold text-white transition hover:scale-105 disabled:opacity-50 dark:bg-white dark:text-black"
+                  className="w-full rounded-full bg-black px-6 py-3 font-semibold text-white transition duration-300 ease-out hover:scale-105 disabled:opacity-50 dark:bg-white dark:text-black"
                 >
                   {starting ? t.rooms.starting : t.rooms.nextRound}
                 </button>
               ) : (
                 <button
                   onClick={finishRoom}
-                  className="w-full rounded-full bg-black px-6 py-3 font-semibold text-white transition hover:scale-105 dark:bg-white dark:text-black"
+                  className="w-full rounded-full bg-black px-6 py-3 font-semibold text-white transition duration-300 ease-out hover:scale-105 dark:bg-white dark:text-black"
                 >
                   {t.rooms.finishRoom}
                 </button>
@@ -858,7 +858,7 @@ export default function RoomPage() {
 
         {/* FINISHED */}
         {room.status === "finished" && (
-          <div className="mt-8 space-y-6">
+          <div className="mt-8 space-y-6 animate-fade-in-up">
             <h2 className="text-xl font-semibold">{t.rooms.finalLeaderboardTitle}</h2>
             <ul className="space-y-2">
               {finalStandings.map((s, i) => (
@@ -878,7 +878,7 @@ export default function RoomPage() {
             </ul>
             <Link
               href="/rooms"
-              className="block w-full rounded-full bg-black px-6 py-3 text-center font-semibold text-white transition hover:scale-105 dark:bg-white dark:text-black"
+              className="block w-full rounded-full bg-black px-6 py-3 text-center font-semibold text-white transition duration-300 ease-out hover:scale-105 dark:bg-white dark:text-black"
             >
               {t.rooms.playAgain}
             </Link>

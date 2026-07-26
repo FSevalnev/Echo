@@ -770,7 +770,7 @@ export default function TryEcho() {
                   <>
                     <label
                       htmlFor="file-upload"
-                      className="inline-block cursor-pointer rounded-full bg-black px-6 py-3 font-semibold text-white transition hover:scale-105 dark:bg-white dark:text-black"
+                      className="inline-block cursor-pointer rounded-full bg-black px-6 py-3 font-semibold text-white transition duration-300 ease-out hover:scale-105 dark:bg-white dark:text-black"
                     >
                       📎 {t.tryEcho.fileChoose}
                     </label>
@@ -822,7 +822,7 @@ export default function TryEcho() {
                   <button
                     type="button"
                     onClick={startRecording}
-                    className="rounded-full bg-black px-6 py-3 font-semibold text-white transition hover:scale-105 dark:bg-white dark:text-black"
+                    className="rounded-full bg-black px-6 py-3 font-semibold text-white transition duration-300 ease-out hover:scale-105 dark:bg-white dark:text-black"
                   >
                     🎙️ {t.tryEcho.recordStart}
                   </button>
@@ -833,7 +833,7 @@ export default function TryEcho() {
                     <button
                       type="button"
                       onClick={stopRecording}
-                      className="animate-pulse rounded-full bg-red-600 px-6 py-3 font-semibold text-white transition hover:scale-105"
+                      className="animate-pulse rounded-full bg-red-600 px-6 py-3 font-semibold text-white transition duration-300 ease-out hover:scale-105"
                     >
                       ⏹ {t.tryEcho.recordStop}
                     </button>
@@ -919,7 +919,7 @@ export default function TryEcho() {
           <div className="rounded-3xl border border-gray-200 bg-white shadow-2xl p-5 sm:p-8 min-h-[420px] flex flex-col dark:border-gray-800 dark:bg-gray-900">
 
             {status === "idle" && (
-              <div className="m-auto text-center text-gray-400 dark:text-gray-600">
+              <div className="animate-fade-in-up m-auto text-center text-gray-400 dark:text-gray-600">
                 <div className="text-5xl">🤖</div>
                 <p className="mt-4 max-w-xs mx-auto">
                   {t.tryEcho.idleHint}
@@ -928,21 +928,23 @@ export default function TryEcho() {
             )}
 
             {status === "loading" && (
-              <div className="m-auto text-center text-gray-400 animate-pulse dark:text-gray-600">
-                <div className="text-5xl">🧠</div>
-                <p className="mt-4">{t.tryEcho.loadingHint}</p>
+              <div className="animate-fade-in-up m-auto text-center text-gray-400 dark:text-gray-600">
+                <div className="animate-pulse">
+                  <div className="text-5xl">🧠</div>
+                  <p className="mt-4">{t.tryEcho.loadingHint}</p>
+                </div>
               </div>
             )}
 
             {status === "error" && (
-              <div className="m-auto text-center text-red-500 dark:text-red-400">
+              <div className="animate-fade-in-up m-auto text-center text-red-500 dark:text-red-400">
                 <div className="text-5xl">⚠️</div>
                 <p className="mt-4 max-w-xs mx-auto">{errorMessage}</p>
               </div>
             )}
 
             {status === "done" && feedback && (
-              <>
+              <div className="animate-fade-in-up">
                 <p className="text-sm text-gray-500 dark:text-gray-400">
                   {t.tryEcho.aiAnalysis}
                   {feedback.source === "mock" && (
@@ -966,7 +968,8 @@ export default function TryEcho() {
 
                 <div className="mt-4 h-3 rounded-full bg-gray-200 overflow-hidden dark:bg-gray-800">
                   <div
-                    className="h-full rounded-full bg-blue-600 transition-all dark:bg-blue-500"
+                    key={feedback.score}
+                    className="animate-grow-bar h-full rounded-full bg-blue-600 dark:bg-blue-500"
                     style={{ width: `${feedback.score}%` }}
                   />
                 </div>
@@ -1113,7 +1116,7 @@ export default function TryEcho() {
                     {feedback.motivation}
                   </p>
                 )}
-              </>
+              </div>
             )}
 
           </div>
