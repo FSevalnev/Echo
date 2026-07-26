@@ -361,6 +361,14 @@ export default function TryEcho() {
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const [micError, setMicError] = useState<string | null>(null);
 
+  // Voice mode transcribes the recording right away (separate from grading)
+  // so the student can read and correct the text before it's ever analyzed.
+  const [transcribeStatus, setTranscribeStatus] = useState<"idle" | "loading" | "done" | "error">(
+    "idle"
+  );
+  const [voiceTranscript, setVoiceTranscript] = useState("");
+  const [transcribeError, setTranscribeError] = useState<string | null>(null);
+
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [filePreviewUrl, setFilePreviewUrl] = useState<string | null>(null);
   const [fileError, setFileError] = useState<string | null>(null);
@@ -402,6 +410,7 @@ export default function TryEcho() {
         setAudioBlob(blob);
         setAudioUrl(URL.createObjectURL(blob));
         stream.getTracks().forEach((track) => track.stop());
+        void transcribeAudio(blob);
       };
 
       mediaRecorderRef.current = recorder;
@@ -431,6 +440,38 @@ export default function TryEcho() {
     setAudioBlob(null);
     setAudioUrl(null);
     setRecordingState("idle");
+    setTranscribeStatus("idle");
+    setVoiceTranscript("");
+    setTranscribeError(null);
+  }
+
+  async function transcribeAudio(blob: Blob) {
+    setTranscribeStatus("loading");
+    setTranscribeError(null);
+    setVoiceTranscript("");
+
+    try {
+      const audioBase64 = await blobToBase64(blob);
+      const res = await fetch("/api/transcribe", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          audioBase64,
+          audioMimeType: blob.type || "audio/webm",
+          lang,
+        }),
+      });
+
+      if (!res.ok) throw new Error(`API responded with ${res.status}`);
+
+      const data = await res.json();
+      setVoiceTranscript(typeof data.transcript === "string" ? data.transcript : "");
+      setTranscribeStatus("done");
+    } catch (err) {
+      console.warn("Echo: transcription failed —", err);
+      setTranscribeStatus("error");
+      setTranscribeError(t.tryEcho.transcribeError);
+    }
   }
 
   function handleFileChange(e: ChangeEvent<HTMLInputElement>) {
@@ -471,8 +512,10 @@ export default function TryEcho() {
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
 
+    const hasEditedTranscript = transcribeStatus === "done" && voiceTranscript.trim().length > 0;
+
     if (mode === "text" && !explanation.trim()) return;
-    if (mode === "voice" && !audioBlob) return;
+    if (mode === "voice" && !hasEditedTranscript && !audioBlob) return;
     if (mode === "file" && !uploadedFile) return;
 
     setStatus("loading");
@@ -484,7 +527,23 @@ export default function TryEcho() {
     try {
       let payload: Record<string, unknown>;
 
-      if (mode === "voice" && audioBlob) {
+      if (mode === "voice" && hasEditedTranscript) {
+        // The recording was already transcribed and the student had a
+        // chance to correct it — analyze that confirmed text exactly like
+        // typed input, instead of re-sending the raw audio.
+        payload = {
+          mode: "text",
+          topic: trimmedTopic,
+          explanation: voiceTranscript.trim(),
+          lang,
+          level,
+          grade: level === "schoolchild" ? grade : undefined,
+          previousScores,
+        };
+      } else if (mode === "voice" && audioBlob) {
+        // Fallback: transcription failed or hasn't finished — send the raw
+        // audio and let /api/analyze transcribe + grade in one step, as
+        // before.
         const audioBase64 = await blobToBase64(audioBlob);
         payload = {
           mode: "audio",
@@ -529,10 +588,16 @@ export default function TryEcho() {
       if (!res.ok) throw new Error(`API responded with ${res.status}`);
 
       const result: AnalysisResult = await res.json();
-      setFeedback({ ...result, source: "ai" });
+      // When voice mode analyzed the edited transcript as plain text, the
+      // API response has no "transcript" field (that's only returned for
+      // mode="audio") — reuse what the student already confirmed so the
+      // "what Echo heard" box still shows it.
+      const displayTranscript = result.transcript ?? (hasEditedTranscript ? voiceTranscript.trim() : undefined);
+      setFeedback({ ...result, transcript: displayTranscript, source: "ai" });
       setStatus("done");
       const storedMode = mode === "voice" ? "audio" : mode;
-      const explanationText = mode === "text" ? explanation : "";
+      const explanationText =
+        mode === "text" ? explanation : hasEditedTranscript ? voiceTranscript.trim() : "";
       await saveAttempt(user?.id ?? null, trimmedTopic, storedMode, level, result, explanationText);
     } catch (err) {
       console.warn("Echo: analysis failed, falling back —", err);
@@ -552,7 +617,11 @@ export default function TryEcho() {
     (mode === "text"
       ? explanation.trim().length > 0
       : mode === "voice"
-      ? !!audioBlob
+      ? transcribeStatus === "done"
+        ? voiceTranscript.trim().length > 0
+        : transcribeStatus === "error"
+        ? !!audioBlob
+        : false
       : !!uploadedFile);
 
   return (
@@ -797,9 +866,47 @@ export default function TryEcho() {
                 {recordingState === "recorded" && audioUrl && (
                   <div className="space-y-3">
                     <audio controls src={audioUrl} className="mx-auto w-full max-w-xs" />
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                      {t.tryEcho.reviewHint}
-                    </p>
+
+                    {transcribeStatus === "loading" && (
+                      <p className="text-sm text-gray-500 animate-pulse dark:text-gray-400">
+                        🧠 {t.tryEcho.transcribing}
+                      </p>
+                    )}
+
+                    {transcribeStatus === "done" && (
+                      <div className="text-left">
+                        <label
+                          htmlFor="voice-transcript"
+                          className="text-sm font-semibold text-gray-700 dark:text-gray-300"
+                        >
+                          {t.tryEcho.transcriptEditLabel}
+                        </label>
+                        <textarea
+                          id="voice-transcript"
+                          value={voiceTranscript}
+                          onChange={(e) => setVoiceTranscript(e.target.value)}
+                          rows={6}
+                          className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-950"
+                        />
+                        <p className="mt-1 text-xs text-gray-400 dark:text-gray-500">
+                          {t.tryEcho.transcriptEditHint}
+                        </p>
+                      </div>
+                    )}
+
+                    {transcribeStatus === "error" && (
+                      <div className="text-left">
+                        <p className="text-sm text-red-600 dark:text-red-400">{transcribeError}</p>
+                        <button
+                          type="button"
+                          onClick={() => audioBlob && transcribeAudio(audioBlob)}
+                          className="mt-1 text-sm font-semibold text-blue-600 hover:underline dark:text-blue-400"
+                        >
+                          ↻ {t.tryEcho.transcribeRetry}
+                        </button>
+                      </div>
+                    )}
+
                     <button
                       type="button"
                       onClick={resetRecording}

@@ -107,6 +107,10 @@ create table if not exists public.rooms (
   created_at timestamptz not null default now()
 );
 
+-- Older installs already have this table without the column above —
+-- this is a no-op on a fresh install where the CREATE TABLE just ran.
+alter table public.rooms add column if not exists grade int check (grade between 1 and 11);
+
 create table if not exists public.room_participants (
   id uuid primary key default gen_random_uuid(),
   room_id uuid not null references public.rooms (id) on delete cascade,

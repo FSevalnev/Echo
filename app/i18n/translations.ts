@@ -69,6 +69,11 @@ export type Dictionary = {
     understandingScore: string;
     followUpLabel: string;
     transcriptLabel: string;
+    transcribing: string;
+    transcribeError: string;
+    transcribeRetry: string;
+    transcriptEditLabel: string;
+    transcriptEditHint: string;
     micError: string;
     apiError: string;
     scoreBands: {
@@ -370,6 +375,11 @@ export const translations: Record<Lang, Dictionary> = {
       understandingScore: "Understanding Score",
       followUpLabel: "Follow-up:",
       transcriptLabel: "What Echo heard:",
+      transcribing: "Transcribing your recording...",
+      transcribeError: "Couldn't transcribe the recording. You can retry, or submit the audio as-is.",
+      transcribeRetry: "Retry transcription",
+      transcriptEditLabel: "Here's what we heard — edit it if anything's off",
+      transcriptEditHint: "Fix any mistranscribed words before submitting for the most accurate analysis.",
       micError: "Couldn't access the microphone. Check your browser permissions.",
       apiError: "Couldn't reach Echo. Try again or switch to text.",
       scoreBands: {
@@ -672,6 +682,11 @@ export const translations: Record<Lang, Dictionary> = {
       understandingScore: "Оценка понимания",
       followUpLabel: "Уточняющий вопрос:",
       transcriptLabel: "Что услышал Echo:",
+      transcribing: "Распознаём запись...",
+      transcribeError: "Не удалось распознать запись. Можешь повторить попытку или отправить аудио как есть.",
+      transcribeRetry: "Повторить распознавание",
+      transcriptEditLabel: "Вот что мы услышали — отредактируй, если что-то не так",
+      transcriptEditHint: "Исправь неточности перед отправкой, чтобы анализ был точнее.",
       micError: "Не удалось получить доступ к микрофону. Проверь разрешения браузера.",
       apiError: "Не удалось связаться с Echo. Попробуй ещё раз или переключись на текст.",
       scoreBands: {
@@ -973,6 +988,11 @@ export const translations: Record<Lang, Dictionary> = {
       understandingScore: "Холи фаҳмиш",
       followUpLabel: "Саволи иловагӣ:",
       transcriptLabel: "Он чи Echo шунид:",
+      transcribing: "Сабт дар ҳоли шинохта шудан аст...",
+      transcribeError: "Сабт шинохта нашуд. Метавонед аз нав кӯшиш кунед ё аудиоро ҳамин тавр фиристед.",
+      transcribeRetry: "Аз нав шинохтан",
+      transcriptEditLabel: "Инак чизе ки шунидем — агар чизе нодуруст бошад, тағир диҳед",
+      transcriptEditHint: "Пеш аз фиристодан хатогиҳоро ислоҳ кунед, то таҳлил дақиқтар шавад.",
       micError: "Дастрасӣ ба микрофон имконнопазир аст. Иҷозатҳои браузерро тафтиш кунед.",
       apiError: "Пайваст шудан бо Echo имконнопазир шуд. Дубора кӯшиш кунед ё ба матн гузаред.",
       scoreBands: {
