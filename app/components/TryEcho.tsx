@@ -568,11 +568,11 @@ export default function TryEcho() {
 
           <form
             onSubmit={handleSubmit}
-            className="rounded-3xl border border-gray-200 bg-white shadow-sm p-8 space-y-6 dark:border-gray-800 dark:bg-gray-900"
+            className="rounded-3xl border border-gray-200 bg-white shadow-sm p-5 sm:p-8 space-y-6 dark:border-gray-800 dark:bg-gray-900"
           >
 
             {/* Mode tabs */}
-            <div className="inline-flex rounded-full border border-gray-300 p-1 dark:border-gray-700">
+            <div className="flex flex-wrap gap-1 rounded-full border border-gray-300 p-1 dark:border-gray-700">
               <button
                 type="button"
                 onClick={() => switchMode("text")}
@@ -698,7 +698,7 @@ export default function TryEcho() {
                       <img
                         src={filePreviewUrl}
                         alt={uploadedFile.name}
-                        className="mx-auto max-h-48 rounded-lg object-contain"
+                        className="mx-auto max-h-48 w-auto max-w-full rounded-lg object-contain"
                       />
                     ) : (
                       <p className="text-4xl">📄</p>
@@ -782,7 +782,7 @@ export default function TryEcho() {
 
           {/* RIGHT: result card */}
 
-          <div className="rounded-3xl border border-gray-200 bg-white shadow-2xl p-8 min-h-[420px] flex flex-col dark:border-gray-800 dark:bg-gray-900">
+          <div className="rounded-3xl border border-gray-200 bg-white shadow-2xl p-5 sm:p-8 min-h-[420px] flex flex-col dark:border-gray-800 dark:bg-gray-900">
 
             {status === "idle" && (
               <div className="m-auto text-center text-gray-400 dark:text-gray-600">
@@ -888,8 +888,8 @@ export default function TryEcho() {
                     ) : (
                       feedback.mistakes.map((m, i) => (
                         <div key={i} className="rounded-xl bg-yellow-50 p-4 text-sm dark:bg-yellow-500/10">
-                          <div className="flex items-start justify-between gap-2">
-                            <p className="font-semibold">⚠ {m.issue}</p>
+                          <div className="flex flex-wrap items-start gap-2">
+                            <p className="font-semibold flex-1 min-w-[60%]">⚠ {m.issue}</p>
                             <span className="shrink-0 rounded-full bg-yellow-200/60 px-2 py-0.5 text-xs font-medium text-yellow-900 dark:bg-yellow-500/20 dark:text-yellow-200">
                               {t.tryEcho.causeLabels[m.cause]}
                             </span>

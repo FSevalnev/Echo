@@ -31,7 +31,7 @@ export default function AccountMenu() {
     <div className="flex items-center gap-3">
       <Link
         href="/history"
-        className="hidden whitespace-nowrap text-sm font-medium text-gray-600 hover:text-black sm:inline dark:text-gray-400 dark:hover:text-white"
+        className="whitespace-nowrap text-sm font-medium text-gray-600 hover:text-black dark:text-gray-400 dark:hover:text-white"
       >
         {t.auth.history}
       </Link>

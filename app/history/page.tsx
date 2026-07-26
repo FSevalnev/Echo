@@ -42,7 +42,11 @@ function Sparkline({ scores }: { scores: number[] }) {
     .join(" ");
 
   return (
-    <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} className="overflow-visible">
+    <svg
+      viewBox={`0 0 ${width} ${height}`}
+      preserveAspectRatio="none"
+      className="h-14 w-full max-w-[240px] overflow-visible"
+    >
       <polyline
         points={points}
         fill="none"
