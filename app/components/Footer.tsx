@@ -54,12 +54,12 @@ export default function Footer() {
             © {new Date().getFullYear()} Echo. {t.footer.rightsReserved}
           </p>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2.5">
             <span>Built by</span>
-            <div className="relative h-6 w-6 shrink-0">
+            <div className="relative h-9 w-9 shrink-0">
               <Image src="/brand/brainexe-logo.png" alt="Brain.exe" fill className="object-contain" />
             </div>
-            <span className="font-semibold text-gray-300">Brain.exe</span>
+            <span className="font-semibold text-gray-300 text-base">Brain.exe</span>
           </div>
 
         </div>
