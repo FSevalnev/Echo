@@ -207,6 +207,19 @@ export default function RoomsPage() {
               </div>
 
               <div>
+                <label className="text-sm text-gray-500 dark:text-gray-400">{t.rooms.levelLabel}</label>
+                <select
+                  value={level}
+                  onChange={(e) => setLevel(e.target.value as RoomLevel)}
+                  className="mt-1 w-full rounded-xl border border-gray-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-950"
+                >
+                  <option value="schoolchild">{t.tryEcho.levelSchoolchild}</option>
+                  <option value="student">{t.tryEcho.levelStudent}</option>
+                  <option value="professional">{t.tryEcho.levelProfessional}</option>
+                </select>
+              </div>
+
+              <div>
                 <label className="text-sm text-gray-500 dark:text-gray-400">{t.rooms.topicLabel}</label>
                 <input
                   type="text"
@@ -229,19 +242,6 @@ export default function RoomsPage() {
                   {topicLoading ? t.rooms.randomTopicLoading : t.rooms.randomTopic}
                 </button>
                 {topicError && <p className="mt-1 text-sm text-red-600 dark:text-red-400">{topicError}</p>}
-              </div>
-
-              <div>
-                <label className="text-sm text-gray-500 dark:text-gray-400">{t.rooms.levelLabel}</label>
-                <select
-                  value={level}
-                  onChange={(e) => setLevel(e.target.value as RoomLevel)}
-                  className="mt-1 w-full rounded-xl border border-gray-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-950"
-                >
-                  <option value="schoolchild">{t.tryEcho.levelSchoolchild}</option>
-                  <option value="student">{t.tryEcho.levelStudent}</option>
-                  <option value="professional">{t.tryEcho.levelProfessional}</option>
-                </select>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
