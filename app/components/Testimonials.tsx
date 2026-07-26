@@ -1,3 +1,5 @@
+"use client";
+
 // Testimonials wall — a self-contained social-proof section for the very
 // end of the landing page (right before the footer). Deliberately has no
 // title/subtitle/avatars/badges per spec: just an infinite two-row
