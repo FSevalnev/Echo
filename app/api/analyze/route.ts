@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 export const runtime = "nodejs";
 
-type Level = "beginner" | "intermediate" | "advanced" | "auto";
+type Level = "schoolchild" | "student" | "professional";
 type Cause = "theory" | "carelessness" | "misreading" | "logic" | "calculation";
 
 type AnalyzeRequestBody = {
@@ -81,13 +81,12 @@ const CAUSE_VALUES: Cause[] = [
 ];
 
 const LEVEL_INSTRUCTIONS: Record<Level, string> = {
-  beginner:
-    "The student self-identifies as a BEGINNER. Use the simplest possible language, explain every term you use, keep the explanation of correct answers very step-by-step, and be extra encouraging in tone.",
-  intermediate:
-    "The student self-identifies as INTERMEDIATE. Assume basic vocabulary is known. Give a deeper analysis, point out subtler issues, and don't over-explain the basics.",
-  advanced:
-    "The student self-identifies as ADVANCED. Use precise, professional/technical language. Focus on rigor, edge cases, optimization, and nuance rather than basics — treat them as a peer.",
-  auto: "The student did not specify a level. Infer their likely level from the vocabulary, depth, and correctness of their explanation, and adapt your tone and depth accordingly. Do not mention that you inferred it.",
+  schoolchild:
+    "The student self-identifies as a SCHOOLCHILD (K-12 / school level). Judge the explanation against what a SCHOOL curriculum expects at this stage — simple language, foundational concepts, step-by-step correctness. Do not penalize for missing university-level depth, rigor, or advanced terminology that isn't taught in school. Be extra encouraging in tone.",
+  student:
+    "The student self-identifies as a UNIVERSITY STUDENT. Judge the explanation against what a UNIVERSITY-level course expects — correct use of course-level terminology, deeper conceptual understanding, and the ability to connect ideas, but not full professional/research-grade rigor. Point out subtler issues than you would for a schoolchild.",
+  professional:
+    "The student self-identifies as a PROFESSIONAL — the highest level. Judge the explanation with the full rigor expected of a subject-matter expert: precise technical language, nuance, edge cases, and professional-grade accuracy. Do not go easy on imprecision or hand-waving; treat them as a peer.",
 };
 
 function buildSystemPrompt(
@@ -188,11 +187,11 @@ export async function POST(req: NextRequest) {
     body.mode === "audio" ? "audio" : body.mode === "file" ? "file" : "text";
   const topic = (body.topic ?? "").trim();
   const languageName = LANGUAGE_NAMES[body.lang ?? "en"] ?? "English";
-  const level: Level = ["beginner", "intermediate", "advanced", "auto"].includes(
+  const level: Level = ["schoolchild", "student", "professional"].includes(
     body.level ?? ""
   )
     ? (body.level as Level)
-    : "auto";
+    : "student";
   const previousScores = Array.isArray(body.previousScores)
     ? body.previousScores.filter((n) => typeof n === "number").slice(-5)
     : [];

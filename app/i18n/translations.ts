@@ -49,10 +49,9 @@ export type Dictionary = {
     explanationLabel: string;
     explanationPlaceholder: string;
     levelLabel: string;
-    levelBeginner: string;
-    levelIntermediate: string;
-    levelAdvanced: string;
-    levelAuto: string;
+    levelSchoolchild: string;
+    levelStudent: string;
+    levelProfessional: string;
     submit: string;
     submitting: string;
     recordStart: string;
@@ -223,10 +222,9 @@ export const translations: Record<Lang, Dictionary> = {
       explanationPlaceholder:
         "Explain it in your own words, like you're teaching someone who's never heard of it...",
       levelLabel: "Your level",
-      levelBeginner: "Beginner",
-      levelIntermediate: "Intermediate",
-      levelAdvanced: "Advanced",
-      levelAuto: "Not sure — let AI decide",
+      levelSchoolchild: "Schoolchild (school curriculum)",
+      levelStudent: "University student",
+      levelProfessional: "Professional",
       submit: "Check My Understanding",
       submitting: "Analyzing...",
       recordStart: "Start Recording",
@@ -398,10 +396,9 @@ export const translations: Record<Lang, Dictionary> = {
       explanationPlaceholder:
         "Объясни своими словами, как будто учишь того, кто никогда об этом не слышал...",
       levelLabel: "Твой уровень",
-      levelBeginner: "Новичок",
-      levelIntermediate: "Средний",
-      levelAdvanced: "Продвинутый",
-      levelAuto: "Не уверен — пусть решит AI",
+      levelSchoolchild: "Школьник (школьная программа)",
+      levelStudent: "Студент (университет)",
+      levelProfessional: "Профессионал",
       submit: "Проверить понимание",
       submitting: "Анализирую...",
       recordStart: "Начать запись",
@@ -572,10 +569,9 @@ export const translations: Record<Lang, Dictionary> = {
       explanationPlaceholder:
         "Бо суханони худ шарҳ диҳед, гӯё ба касе меомӯзонед, ки ҳеҷ гоҳ дар бораи он нашунидааст...",
       levelLabel: "Сатҳи шумо",
-      levelBeginner: "Навомӯз",
-      levelIntermediate: "Миёна",
-      levelAdvanced: "Пешрафта",
-      levelAuto: "Мутмаин нестам — бигзор AI ҳал кунад",
+      levelSchoolchild: "Хонандаи мактаб (барномаи мактабӣ)",
+      levelStudent: "Донишҷӯ (донишгоҳ)",
+      levelProfessional: "Мутахассис",
       submit: "Фаҳмиши маро санҷед",
       submitting: "Таҳлил шуда истодааст...",
       recordStart: "Сабтро оғоз кунед",

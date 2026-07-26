@@ -7,7 +7,7 @@ import { Dictionary, Lang } from "../i18n/translations";
 import { useAuth, isSupabaseConfigured } from "../auth/AuthContext";
 import { createClient } from "../../lib/supabase/client";
 
-type Level = "beginner" | "intermediate" | "advanced" | "auto";
+type Level = "schoolchild" | "student" | "professional";
 type Cause = "theory" | "carelessness" | "misreading" | "logic" | "calculation";
 
 type Mistake = {
@@ -340,7 +340,7 @@ export default function TryEcho() {
 
   const [mode, setMode] = useState<"text" | "voice" | "file">("text");
   const [topic, setTopic] = useState("");
-  const [level, setLevel] = useState<Level>("auto");
+  const [level, setLevel] = useState<Level>("student");
   const [explanation, setExplanation] = useState("");
   const [status, setStatus] = useState<"idle" | "loading" | "done" | "error">("idle");
   const [feedback, setFeedback] = useState<Feedback | null>(null);
@@ -640,10 +640,9 @@ export default function TryEcho() {
                   onChange={(e) => setLevel(e.target.value as Level)}
                   className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-950"
                 >
-                  <option value="auto">{t.tryEcho.levelAuto}</option>
-                  <option value="beginner">{t.tryEcho.levelBeginner}</option>
-                  <option value="intermediate">{t.tryEcho.levelIntermediate}</option>
-                  <option value="advanced">{t.tryEcho.levelAdvanced}</option>
+                  <option value="schoolchild">{t.tryEcho.levelSchoolchild}</option>
+                  <option value="student">{t.tryEcho.levelStudent}</option>
+                  <option value="professional">{t.tryEcho.levelProfessional}</option>
                 </select>
               </div>
 
