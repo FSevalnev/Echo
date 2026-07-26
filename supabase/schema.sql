@@ -9,6 +9,7 @@ create table if not exists public.attempts (
   topic_key text not null,
   mode text not null default 'text',       -- 'text' | 'audio' | 'file'
   level text,
+  explanation text,                        -- what the student actually answered (transcript for voice; null for photo/file uploads, which aren't stored)
   score int not null check (score between 0 and 100),
   summary text,
   criteria jsonb,
@@ -16,6 +17,10 @@ create table if not exists public.attempts (
   recommendations jsonb,
   created_at timestamptz not null default now()
 );
+
+-- Older installs already have this table without the column above —
+-- this is a no-op on a fresh install where the CREATE TABLE just ran.
+alter table public.attempts add column if not exists explanation text;
 
 create index if not exists attempts_user_topic_idx
   on public.attempts (user_id, topic_key, created_at desc);

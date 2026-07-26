@@ -108,7 +108,8 @@ async function saveCloudAttempt(
   topic: string,
   mode: "text" | "audio" | "file",
   level: Level,
-  result: AnalysisResult
+  result: AnalysisResult,
+  explanationText: string
 ): Promise<void> {
   if (!topic.trim()) return;
   try {
@@ -119,6 +120,12 @@ async function saveCloudAttempt(
       topic_key: normalizeTopicKey(topic),
       mode,
       level,
+      // For text mode this is exactly what the student typed. For voice
+      // mode there's no typed text, so the AI's transcript stands in for
+      // "what they answered". For file uploads there's no text version
+      // of a photo, so this stays empty — the History page falls back to
+      // a "submitted as a photo/file" note for those rows.
+      explanation: explanationText || result.transcript || null,
       score: result.score,
       summary: result.summary,
       criteria: result.criteria,
@@ -143,10 +150,11 @@ async function saveAttempt(
   topic: string,
   mode: "text" | "audio" | "file",
   level: Level,
-  result: AnalysisResult
+  result: AnalysisResult,
+  explanationText: string
 ): Promise<void> {
   if (userId && isSupabaseConfigured) {
-    await saveCloudAttempt(userId, topic, mode, level, result);
+    await saveCloudAttempt(userId, topic, mode, level, result, explanationText);
   } else {
     saveLocalAttempt(topic, result.score);
   }
@@ -524,7 +532,8 @@ export default function TryEcho() {
       setFeedback({ ...result, source: "ai" });
       setStatus("done");
       const storedMode = mode === "voice" ? "audio" : mode;
-      await saveAttempt(user?.id ?? null, trimmedTopic, storedMode, level, result);
+      const explanationText = mode === "text" ? explanation : "";
+      await saveAttempt(user?.id ?? null, trimmedTopic, storedMode, level, result, explanationText);
     } catch (err) {
       console.warn("Echo: analysis failed, falling back —", err);
 

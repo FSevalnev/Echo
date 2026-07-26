@@ -151,6 +151,40 @@ export type Dictionary = {
     dateLabel: string;
     topicLabel: string;
     clearAll: string;
+    searchPlaceholder: string;
+    statusLabel: string;
+    statusAll: string;
+    statusMastered: string;
+    statusInProgress: string;
+    statusNeedsWork: string;
+    dateFromLabel: string;
+    dateToLabel: string;
+    minScoreLabel: string;
+    sortLabel: string;
+    sortRecent: string;
+    sortBest: string;
+    sortMostPracticed: string;
+    noResults: string;
+    overviewTopicsTracked: string;
+    overviewMasteredCount: string;
+    overviewHardestTitle: string;
+    overviewMasteredTitle: string;
+    overviewEmpty: string;
+    firstAttemptLabel: string;
+    lastAttemptLabel: string;
+    bestScoreLabel: string;
+    averageScoreLabel: string;
+    repetitionsLabel: string;
+    improvementLabel: string;
+    daysPracticedLabel: string;
+    daysPracticedShortLabel: string;
+    daysPracticedToday: string;
+    topMistakeLabel: string;
+    attemptLabel: string;
+    whatYouAnsweredLabel: string;
+    fileSubmissionNote: string;
+    voiceNoTranscriptNote: string;
+    chartTitle: string;
   };
   rooms: {
     title: string;
@@ -417,6 +451,40 @@ export const translations: Record<Lang, Dictionary> = {
       dateLabel: "Date",
       topicLabel: "Topic",
       clearAll: "Clear history",
+      searchPlaceholder: "Search your topics...",
+      statusLabel: "Status",
+      statusAll: "All",
+      statusMastered: "Mastered",
+      statusInProgress: "In progress",
+      statusNeedsWork: "Needs work",
+      dateFromLabel: "From",
+      dateToLabel: "To",
+      minScoreLabel: "Minimum score",
+      sortLabel: "Sort by",
+      sortRecent: "Most recent",
+      sortBest: "Best score",
+      sortMostPracticed: "Most practiced",
+      noResults: "No topics match your filters.",
+      overviewTopicsTracked: "Topics tracked",
+      overviewMasteredCount: "Mastered",
+      overviewHardestTitle: "Toughest topics",
+      overviewMasteredTitle: "Fully mastered",
+      overviewEmpty: "Not enough data yet.",
+      firstAttemptLabel: "First attempt",
+      lastAttemptLabel: "Last attempt",
+      bestScoreLabel: "Best score",
+      averageScoreLabel: "Average score",
+      repetitionsLabel: "Repetitions",
+      improvementLabel: "Improvement",
+      daysPracticedLabel: "Practiced over {n} days",
+      daysPracticedShortLabel: "Days practiced",
+      daysPracticedToday: "Practiced today",
+      topMistakeLabel: "Most common mistake",
+      attemptLabel: "Attempt",
+      whatYouAnsweredLabel: "What you answered",
+      fileSubmissionNote: "Submitted as a photo/file — original not stored.",
+      voiceNoTranscriptNote: "Submitted by voice.",
+      chartTitle: "Understanding over time",
     },
     rooms: {
       title: "Study Rooms",
@@ -681,6 +749,40 @@ export const translations: Record<Lang, Dictionary> = {
       dateLabel: "Дата",
       topicLabel: "Тема",
       clearAll: "Очистить историю",
+      searchPlaceholder: "Поиск по темам...",
+      statusLabel: "Статус",
+      statusAll: "Все",
+      statusMastered: "Освоено",
+      statusInProgress: "В процессе",
+      statusNeedsWork: "Нужно доработать",
+      dateFromLabel: "С",
+      dateToLabel: "По",
+      minScoreLabel: "Минимальный балл",
+      sortLabel: "Сортировка",
+      sortRecent: "Сначала недавние",
+      sortBest: "По лучшему баллу",
+      sortMostPracticed: "По числу попыток",
+      noResults: "Нет тем, подходящих под фильтры.",
+      overviewTopicsTracked: "Тем отслеживается",
+      overviewMasteredCount: "Освоено",
+      overviewHardestTitle: "Сложнее всего даётся",
+      overviewMasteredTitle: "Полностью освоено",
+      overviewEmpty: "Пока недостаточно данных.",
+      firstAttemptLabel: "Первая попытка",
+      lastAttemptLabel: "Последняя попытка",
+      bestScoreLabel: "Лучший балл",
+      averageScoreLabel: "Средний балл",
+      repetitionsLabel: "Повторений",
+      improvementLabel: "Улучшение",
+      daysPracticedLabel: "Практика в течение {n} дней",
+      daysPracticedShortLabel: "Дней практики",
+      daysPracticedToday: "Практика сегодня",
+      topMistakeLabel: "Частая ошибка",
+      attemptLabel: "Попытка",
+      whatYouAnsweredLabel: "Твой ответ",
+      fileSubmissionNote: "Отправлено как фото/файл — оригинал не сохраняется.",
+      voiceNoTranscriptNote: "Отправлено голосом.",
+      chartTitle: "Понимание со временем",
     },
     rooms: {
       title: "Комнаты",
@@ -946,6 +1048,40 @@ export const translations: Record<Lang, Dictionary> = {
       dateLabel: "Сана",
       topicLabel: "Мавзӯъ",
       clearAll: "Тоза кардани таърих",
+      searchPlaceholder: "Ҷустуҷӯ бо мавзӯъҳо...",
+      statusLabel: "Ҳолат",
+      statusAll: "Ҳама",
+      statusMastered: "Азхудшуда",
+      statusInProgress: "Дар раванд",
+      statusNeedsWork: "Ниёз ба кор дорад",
+      dateFromLabel: "Аз",
+      dateToLabel: "То",
+      minScoreLabel: "Ҳадди ақали хол",
+      sortLabel: "Тартиб",
+      sortRecent: "Аввал охирин",
+      sortBest: "Аз рӯи беҳтарин хол",
+      sortMostPracticed: "Аз рӯи шумораи кӯшишҳо",
+      noResults: "Ягон мавзӯъ ба филтрҳо мувофиқат намекунад.",
+      overviewTopicsTracked: "Мавзӯъҳои пайгирӣшуда",
+      overviewMasteredCount: "Азхудшуда",
+      overviewHardestTitle: "Мушкилтарин мавзӯъҳо",
+      overviewMasteredTitle: "Пурра азхудшуда",
+      overviewEmpty: "Маълумот ҳанӯз кофӣ нест.",
+      firstAttemptLabel: "Кӯшиши аввалин",
+      lastAttemptLabel: "Кӯшиши охирин",
+      bestScoreLabel: "Беҳтарин хол",
+      averageScoreLabel: "Холи миёна",
+      repetitionsLabel: "Такрорҳо",
+      improvementLabel: "Беҳбудӣ",
+      daysPracticedLabel: "Дар давоми {n} рӯз машқ карда шуд",
+      daysPracticedShortLabel: "Рӯзҳои машқ",
+      daysPracticedToday: "Имрӯз машқ карда шуд",
+      topMistakeLabel: "Хатои маъмултарин",
+      attemptLabel: "Кӯшиш",
+      whatYouAnsweredLabel: "Ҷавоби шумо",
+      fileSubmissionNote: "Ҳамчун акс/файл фиристода шуд — нусхаи аслӣ нигоҳ дошта намешавад.",
+      voiceNoTranscriptNote: "Бо овоз фиристода шуд.",
+      chartTitle: "Фаҳмиш бо гузашти вақт",
     },
     rooms: {
       title: "Утоқҳо",
