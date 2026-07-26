@@ -30,15 +30,14 @@ export const metadata: Metadata = {
   description:
     "Echo analyzes your explanations, finds gaps in your understanding, and gives instant AI feedback so you learn faster and remember longer.",
   icons: {
-    // Reuses the same light/dark logo pair already shipped for the navbar
-    // (see the comment in Navbar.tsx) — no new image assets needed. Most
-    // browsers pick the variant matching the OS/browser color scheme;
-    // browsers that ignore `media` just use the first entry.
-    icon: [
-      { url: "/brand/echo-logo-light.png", media: "(prefers-color-scheme: light)" },
-      { url: "/brand/echo-logo.png", media: "(prefers-color-scheme: dark)" },
-    ],
-    apple: "/brand/echo-logo.png",
+    // The navbar logos (echo-logo.png / echo-logo-light.png) have a
+    // transparent background, which makes them nearly invisible at
+    // favicon size against the browser's own chrome. This dedicated
+    // favicon file has its own solid light background baked in, so it
+    // stays visible in a tab regardless of the browser's theme — no
+    // light/dark media-query split needed.
+    icon: "/brand/echo-favicon.jpg",
+    apple: "/brand/echo-favicon.jpg",
   },
 };
 
