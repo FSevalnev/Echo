@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import ThemeToggle from "./ThemeToggle";
 import LanguageSwitcher from "./LanguageSwitcher";
 import AccountMenu from "./AccountMenu";
@@ -51,6 +52,10 @@ export default function Navbar() {
           <a href="#features" className="hover:text-black transition dark:hover:text-white">
             {t.nav.features}
           </a>
+
+          <Link href="/rooms" className="hover:text-black transition dark:hover:text-white">
+            {t.nav.rooms}
+          </Link>
         </nav>
 
         {/* Desktop right-side cluster — unchanged, just hidden on mobile */}
@@ -97,6 +102,9 @@ export default function Navbar() {
             <a href="#features" onClick={() => setMobileOpen(false)} className="hover:text-black transition dark:hover:text-white">
               {t.nav.features}
             </a>
+            <Link href="/rooms" onClick={() => setMobileOpen(false)} className="hover:text-black transition dark:hover:text-white">
+              {t.nav.rooms}
+            </Link>
           </nav>
 
           <div className="mt-5 flex flex-wrap items-center gap-3">

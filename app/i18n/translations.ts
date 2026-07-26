@@ -12,6 +12,7 @@ export type Dictionary = {
     howItWorks: string;
     features: string;
     tryEcho: string;
+    rooms: string;
   };
   hero: {
     badge: string;
@@ -149,6 +150,63 @@ export type Dictionary = {
     topicLabel: string;
     clearAll: string;
   };
+  rooms: {
+    title: string;
+    subtitle: string;
+    signInPrompt: string;
+    createTitle: string;
+    joinTitle: string;
+    subjectLabel: string;
+    subjectPlaceholder: string;
+    topicLabel: string;
+    topicPlaceholder: string;
+    levelLabel: string;
+    roundsLabel: string;
+    secondsLabel: string;
+    createSubmit: string;
+    creating: string;
+    codeLabel: string;
+    codePlaceholder: string;
+    joinSubmit: string;
+    joining: string;
+    notConfigured: string;
+    roomNotFound: string;
+    genericError: string;
+    lobbyTitle: string;
+    lobbyWaiting: string;
+    lobbyHostHint: string;
+    participantsTitle: string;
+    hostBadge: string;
+    youBadge: string;
+    startRound: string;
+    starting: string;
+    shareHint: string;
+    copyCode: string;
+    copied: string;
+    roundLabel: string;
+    ofLabel: string;
+    timeLeft: string;
+    timeUp: string;
+    answerLabel: string;
+    answerPlaceholder: string;
+    submitAnswer: string;
+    submittingAnswer: string;
+    answerSubmitted: string;
+    waitingOthers: string;
+    submittedCount: string;
+    leaderboardTitle: string;
+    roundScoreLabel: string;
+    totalScoreLabel: string;
+    yourFeedback: string;
+    winnerAnswerLabel: string;
+    nextRound: string;
+    finishRoom: string;
+    finalLeaderboardTitle: string;
+    playAgain: string;
+    backHome: string;
+    leaveRoom: string;
+    hostOnlyHint: string;
+  };
 };
 
 export const translations: Record<Lang, Dictionary> = {
@@ -158,6 +216,7 @@ export const translations: Record<Lang, Dictionary> = {
       howItWorks: "How it Works",
       features: "Features",
       tryEcho: "Try Echo",
+      rooms: "Rooms",
     },
     hero: {
       badge: "✨ AI-powered learning companion",
@@ -337,6 +396,63 @@ export const translations: Record<Lang, Dictionary> = {
       topicLabel: "Topic",
       clearAll: "Clear history",
     },
+    rooms: {
+      title: "Study Rooms",
+      subtitle: "Create a room, invite friends with a code, and see who explains it best.",
+      signInPrompt: "Sign in to create or join a room.",
+      createTitle: "Create a room",
+      joinTitle: "Join a room",
+      subjectLabel: "Subject",
+      subjectPlaceholder: "e.g. Biology, Math, History...",
+      topicLabel: "Topic",
+      topicPlaceholder: "e.g. Osmosis, Newton's second law...",
+      levelLabel: "Level",
+      roundsLabel: "Rounds",
+      secondsLabel: "Seconds per round",
+      createSubmit: "Create room",
+      creating: "Creating...",
+      codeLabel: "Room code",
+      codePlaceholder: "e.g. AB3F9",
+      joinSubmit: "Join room",
+      joining: "Joining...",
+      notConfigured: "Accounts aren't set up for this deployment yet, so Rooms isn't available.",
+      roomNotFound: "No room found with that code.",
+      genericError: "Something went wrong. Try again.",
+      lobbyTitle: "Lobby",
+      lobbyWaiting: "Waiting for the host to start the first round...",
+      lobbyHostHint: "Share the code below, then start the round once everyone's in.",
+      participantsTitle: "Participants",
+      hostBadge: "Host",
+      youBadge: "You",
+      startRound: "Start round",
+      starting: "Starting...",
+      shareHint: "Share this code so others can join:",
+      copyCode: "Copy code",
+      copied: "Copied!",
+      roundLabel: "Round",
+      ofLabel: "of",
+      timeLeft: "Time left",
+      timeUp: "Time's up",
+      answerLabel: "Your explanation",
+      answerPlaceholder: "Explain it in your own words...",
+      submitAnswer: "Submit answer",
+      submittingAnswer: "Grading...",
+      answerSubmitted: "Answer submitted — waiting for the round to end.",
+      waitingOthers: "Waiting for other participants...",
+      submittedCount: "submitted",
+      leaderboardTitle: "Round leaderboard",
+      roundScoreLabel: "Round score",
+      totalScoreLabel: "Total score",
+      yourFeedback: "Your feedback",
+      winnerAnswerLabel: "How the top answer explained it",
+      nextRound: "Next round",
+      finishRoom: "Finish room",
+      finalLeaderboardTitle: "Final results",
+      playAgain: "Create another room",
+      backHome: "← Back to Echo",
+      leaveRoom: "Leave room",
+      hostOnlyHint: "Only the host can do this.",
+    },
   },
 
   ru: {
@@ -345,6 +461,7 @@ export const translations: Record<Lang, Dictionary> = {
       howItWorks: "Как это работает",
       features: "Возможности",
       tryEcho: "Попробовать Echo",
+      rooms: "Комнаты",
     },
     hero: {
       badge: "✨ Обучение с помощью ИИ",
@@ -523,6 +640,63 @@ export const translations: Record<Lang, Dictionary> = {
       topicLabel: "Тема",
       clearAll: "Очистить историю",
     },
+    rooms: {
+      title: "Комнаты",
+      subtitle: "Создай комнату, пригласи друзей по коду и узнай, кто объясняет лучше всех.",
+      signInPrompt: "Войди, чтобы создать или зайти в комнату.",
+      createTitle: "Создать комнату",
+      joinTitle: "Зайти в комнату",
+      subjectLabel: "Предмет",
+      subjectPlaceholder: "например, биология, математика, история...",
+      topicLabel: "Тема",
+      topicPlaceholder: "например, осмос, второй закон Ньютона...",
+      levelLabel: "Уровень",
+      roundsLabel: "Раунды",
+      secondsLabel: "Секунд на раунд",
+      createSubmit: "Создать комнату",
+      creating: "Создаю...",
+      codeLabel: "Код комнаты",
+      codePlaceholder: "например, AB3F9",
+      joinSubmit: "Зайти",
+      joining: "Захожу...",
+      notConfigured: "Аккаунты пока не настроены для этого деплоя, поэтому Комнаты недоступны.",
+      roomNotFound: "Комната с таким кодом не найдена.",
+      genericError: "Что-то пошло не так. Попробуй ещё раз.",
+      lobbyTitle: "Лобби",
+      lobbyWaiting: "Ждём, пока хост начнёт первый раунд...",
+      lobbyHostHint: "Поделись кодом ниже, затем начни раунд, когда все зайдут.",
+      participantsTitle: "Участники",
+      hostBadge: "Хост",
+      youBadge: "Ты",
+      startRound: "Начать раунд",
+      starting: "Начинаю...",
+      shareHint: "Поделись этим кодом, чтобы другие могли зайти:",
+      copyCode: "Скопировать код",
+      copied: "Скопировано!",
+      roundLabel: "Раунд",
+      ofLabel: "из",
+      timeLeft: "Осталось времени",
+      timeUp: "Время вышло",
+      answerLabel: "Твоё объяснение",
+      answerPlaceholder: "Объясни своими словами...",
+      submitAnswer: "Отправить ответ",
+      submittingAnswer: "Проверяю...",
+      answerSubmitted: "Ответ отправлен — ждём окончания раунда.",
+      waitingOthers: "Ждём остальных участников...",
+      submittedCount: "отправили",
+      leaderboardTitle: "Рейтинг раунда",
+      roundScoreLabel: "Очки за раунд",
+      totalScoreLabel: "Всего очков",
+      yourFeedback: "Твой фидбек",
+      winnerAnswerLabel: "Как объяснил лучший ответ",
+      nextRound: "Следующий раунд",
+      finishRoom: "Завершить комнату",
+      finalLeaderboardTitle: "Итоговый результат",
+      playAgain: "Создать ещё одну комнату",
+      backHome: "← Назад в Echo",
+      leaveRoom: "Покинуть комнату",
+      hostOnlyHint: "Это может сделать только хост.",
+    },
   },
 
   tg: {
@@ -531,6 +705,7 @@ export const translations: Record<Lang, Dictionary> = {
       howItWorks: "Чӣ тавр кор мекунад",
       features: "Хусусиятҳо",
       tryEcho: "Echo-ро санҷед",
+      rooms: "Утоқҳо",
     },
     hero: {
       badge: "✨ Ҳамсафари омӯзиш бо AI",
@@ -709,6 +884,63 @@ export const translations: Record<Lang, Dictionary> = {
       dateLabel: "Сана",
       topicLabel: "Мавзӯъ",
       clearAll: "Тоза кардани таърих",
+    },
+    rooms: {
+      title: "Утоқҳо",
+      subtitle: "Утоқ созед, дӯстонро бо код даъват кунед ва бинед, ки кӣ беҳтарин шарҳ медиҳад.",
+      signInPrompt: "Барои сохтан ё пайвастан ба утоқ ворид шавед.",
+      createTitle: "Утоқ созед",
+      joinTitle: "Ба утоқ пайвастан",
+      subjectLabel: "Фан",
+      subjectPlaceholder: "масалан, биология, математика, таърих...",
+      topicLabel: "Мавзӯъ",
+      topicPlaceholder: "масалан, осмос, қонуни дуюми Нютон...",
+      levelLabel: "Сатҳ",
+      roundsLabel: "Даврҳо",
+      secondsLabel: "Сония барои як давр",
+      createSubmit: "Утоқ созед",
+      creating: "Сохта истодааст...",
+      codeLabel: "Коди утоқ",
+      codePlaceholder: "масалан, AB3F9",
+      joinSubmit: "Пайвастан",
+      joining: "Пайваст шуда истодааст...",
+      notConfigured: "Ҳисобҳо барои ин деплой ҳанӯз танзим нашудаанд, бинобар ин Утоқҳо дастрас нест.",
+      roomNotFound: "Утоқ бо ин код ёфт нашуд.",
+      genericError: "Хатое рух дод. Дубора кӯшиш кунед.",
+      lobbyTitle: "Лобби",
+      lobbyWaiting: "Интизори он ҳастем, ки хост давраи якумро оғоз кунад...",
+      lobbyHostHint: "Коди зеринро мубодила кунед, сипас вақте ҳама пайваст шуданд, давраро оғоз кунед.",
+      participantsTitle: "Иштирокчиён",
+      hostBadge: "Хост",
+      youBadge: "Шумо",
+      startRound: "Давраро оғоз кунед",
+      starting: "Оғоз шуда истодааст...",
+      shareHint: "Ин кодро мубодила кунед, то дигарон пайваст шаванд:",
+      copyCode: "Нусхабардории код",
+      copied: "Нусха бардошта шуд!",
+      roundLabel: "Давра",
+      ofLabel: "аз",
+      timeLeft: "Вақти боқимонда",
+      timeUp: "Вақт тамом шуд",
+      answerLabel: "Шарҳи шумо",
+      answerPlaceholder: "Бо суханони худ шарҳ диҳед...",
+      submitAnswer: "Ҷавобро фиристед",
+      submittingAnswer: "Санҷида истодааст...",
+      answerSubmitted: "Ҷавоб фиристода шуд — интизори анҷоми давра ҳастем.",
+      waitingOthers: "Интизори дигар иштирокчиён ҳастем...",
+      submittedCount: "фиристоданд",
+      leaderboardTitle: "Рейтинги давра",
+      roundScoreLabel: "Холи давра",
+      totalScoreLabel: "Ҳамагӣ хол",
+      yourFeedback: "Бозхӯрии шумо",
+      winnerAnswerLabel: "Ҷавоби беҳтарин чӣ тавр шарҳ дод",
+      nextRound: "Давраи навбатӣ",
+      finishRoom: "Утоқро анҷом диҳед",
+      finalLeaderboardTitle: "Натиҷаи ниҳоӣ",
+      playAgain: "Утоқи дигар созед",
+      backHome: "← Бозгашт ба Echo",
+      leaveRoom: "Утоқро тарк кунед",
+      hostOnlyHint: "Инро танҳо хост карда метавонад.",
     },
   },
 };
