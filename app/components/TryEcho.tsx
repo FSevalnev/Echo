@@ -687,12 +687,23 @@ export default function TryEcho() {
 
             {mode === "text" ? (
               <div>
-                <label
-                  htmlFor="explanation"
-                  className="text-sm font-semibold text-gray-700 dark:text-gray-300"
-                >
-                  {t.tryEcho.explanationLabel}
-                </label>
+                <div className="flex items-center justify-between">
+                  <label
+                    htmlFor="explanation"
+                    className="text-sm font-semibold text-gray-700 dark:text-gray-300"
+                  >
+                    {t.tryEcho.explanationLabel}
+                  </label>
+                  {explanation.length > 0 && (
+                    <button
+                      type="button"
+                      onClick={() => setExplanation("")}
+                      className="text-xs font-medium text-gray-400 transition hover:text-red-500 dark:text-gray-500 dark:hover:text-red-400"
+                    >
+                      {t.tryEcho.clearExplanation}
+                    </button>
+                  )}
+                </div>
                 <textarea
                   id="explanation"
                   required

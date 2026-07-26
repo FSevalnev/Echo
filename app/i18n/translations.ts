@@ -104,6 +104,7 @@ export type Dictionary = {
     fileTypeError: string;
     fileSizeError: string;
     signUpPrompt: string;
+    clearExplanation: string;
   };
   footer: {
     tagline: string;
@@ -404,6 +405,7 @@ export const translations: Record<Lang, Dictionary> = {
       fileTypeError: "That file type isn't supported. Please upload a JPG, PNG, WEBP, or PDF.",
       fileSizeError: "That file is too large. Please keep it under 15MB.",
       signUpPrompt: "Sign up to save this progress and see it on any device.",
+      clearExplanation: "Clear",
     },
     footer: {
       tagline:
@@ -705,6 +707,7 @@ export const translations: Record<Lang, Dictionary> = {
       fileTypeError: "Этот тип файла не поддерживается. Загрузи JPG, PNG, WEBP или PDF.",
       fileSizeError: "Файл слишком большой. Держи его меньше 15МБ.",
       signUpPrompt: "Зарегистрируйся, чтобы сохранить этот прогресс и видеть его на любом устройстве.",
+      clearExplanation: "Очистить",
     },
     footer: {
       tagline: "Учись, объясняя. ИИ-фидбек находит твои пробелы и помогает их закрыть.",
@@ -1005,6 +1008,7 @@ export const translations: Record<Lang, Dictionary> = {
       fileTypeError: "Ин навъи файл дастгирӣ намешавад. JPG, PNG, WEBP ё PDF бор кунед.",
       fileSizeError: "Файл хеле калон аст. Онро то 15МБ нигоҳ доред.",
       signUpPrompt: "Барои нигоҳ доштани ин пешрафт ва дидани он дар ҳар дастгоҳ бақайд гиред.",
+      clearExplanation: "Тоза кардан",
     },
     footer: {
       tagline:
