@@ -29,6 +29,17 @@ export const metadata: Metadata = {
   title: "Echo — Learn by Explaining",
   description:
     "Echo analyzes your explanations, finds gaps in your understanding, and gives instant AI feedback so you learn faster and remember longer.",
+  icons: {
+    // Reuses the same light/dark logo pair already shipped for the navbar
+    // (see the comment in Navbar.tsx) — no new image assets needed. Most
+    // browsers pick the variant matching the OS/browser color scheme;
+    // browsers that ignore `media` just use the first entry.
+    icon: [
+      { url: "/brand/echo-logo-light.png", media: "(prefers-color-scheme: light)" },
+      { url: "/brand/echo-logo.png", media: "(prefers-color-scheme: dark)" },
+    ],
+    apple: "/brand/echo-logo.png",
+  },
 };
 
 // Runs before React hydrates so the correct theme is applied on the very
