@@ -27,9 +27,34 @@ export default function RoomsPage() {
   const [creating, setCreating] = useState(false);
   const [createError, setCreateError] = useState<string | null>(null);
 
+  const [topicLoading, setTopicLoading] = useState(false);
+  const [topicError, setTopicError] = useState<string | null>(null);
+
   const [joinCode, setJoinCode] = useState("");
   const [joining, setJoining] = useState(false);
   const [joinError, setJoinError] = useState<string | null>(null);
+
+  async function handleRandomTopic() {
+    if (!subject.trim() || topicLoading) return;
+    setTopicLoading(true);
+    setTopicError(null);
+
+    try {
+      const res = await fetch("/api/random-topic", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ subject: subject.trim(), level, lang }),
+      });
+      if (!res.ok) throw new Error("random-topic failed");
+      const data = await res.json();
+      if (!data.topic) throw new Error("empty topic");
+      setTopic(data.topic);
+    } catch {
+      setTopicError(t.rooms.randomTopicError);
+    } finally {
+      setTopicLoading(false);
+    }
+  }
 
   async function handleCreate(e: FormEvent) {
     e.preventDefault();
@@ -183,13 +208,28 @@ export default function RoomsPage() {
 
               <div>
                 <label className="text-sm text-gray-500 dark:text-gray-400">{t.rooms.topicLabel}</label>
-                <input
-                  type="text"
-                  value={topic}
-                  onChange={(e) => setTopic(e.target.value)}
-                  placeholder={t.rooms.topicPlaceholder}
-                  className="mt-1 w-full rounded-xl border border-gray-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-950"
-                />
+                <div className="mt-1 flex gap-2">
+                  <input
+                    type="text"
+                    value={topic}
+                    onChange={(e) => {
+                      setTopic(e.target.value);
+                      setTopicError(null);
+                    }}
+                    placeholder={t.rooms.topicPlaceholder}
+                    className="w-full rounded-xl border border-gray-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-950"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleRandomTopic}
+                    disabled={!subject.trim() || topicLoading}
+                    title={!subject.trim() ? t.rooms.subjectLabel : undefined}
+                    className="shrink-0 whitespace-nowrap rounded-xl border border-gray-300 px-3 py-3 text-sm font-semibold transition hover:bg-gray-100 disabled:opacity-50 dark:border-gray-700 dark:hover:bg-gray-800"
+                  >
+                    {topicLoading ? t.rooms.randomTopicLoading : t.rooms.randomTopic}
+                  </button>
+                </div>
+                {topicError && <p className="mt-1 text-sm text-red-600 dark:text-red-400">{topicError}</p>}
               </div>
 
               <div>

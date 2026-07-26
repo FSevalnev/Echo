@@ -167,8 +167,13 @@ create policy "host update room"
   on public.rooms for update
   using (auth.uid() = host_user_id);
 
--- room_participants: you can join yourself; you can see everyone in a
--- room you're also a member of; you can only update your own row.
+-- room_participants: you can join yourself; any signed-in user can see
+-- participant rows (same trust level as "select rooms" above — who's in
+-- a study room isn't sensitive, and it sidesteps a Postgres limitation
+-- where a policy on room_participants can't itself query
+-- room_participants to check membership without causing "infinite
+-- recursion detected in policy for relation room_participants"); you can
+-- only update your own row.
 drop policy if exists "join room" on public.room_participants;
 create policy "join room"
   on public.room_participants for insert
@@ -177,13 +182,7 @@ create policy "join room"
 drop policy if exists "select participants" on public.room_participants;
 create policy "select participants"
   on public.room_participants for select
-  using (
-    exists (
-      select 1 from public.room_participants p
-      where p.room_id = room_participants.room_id
-        and p.user_id = auth.uid()
-    )
-  );
+  using (auth.role() = 'authenticated');
 
 drop policy if exists "update own participant row" on public.room_participants;
 create policy "update own participant row"
@@ -195,13 +194,7 @@ create policy "update own participant row"
 drop policy if exists "select rounds" on public.room_rounds;
 create policy "select rounds"
   on public.room_rounds for select
-  using (
-    exists (
-      select 1 from public.room_participants p
-      where p.room_id = room_rounds.room_id
-        and p.user_id = auth.uid()
-    )
-  );
+  using (auth.role() = 'authenticated');
 
 drop policy if exists "host insert rounds" on public.room_rounds;
 create policy "host insert rounds"
@@ -231,13 +224,7 @@ create policy "host update rounds"
 drop policy if exists "select answers" on public.room_answers;
 create policy "select answers"
   on public.room_answers for select
-  using (
-    exists (
-      select 1 from public.room_participants p
-      where p.room_id = room_answers.room_id
-        and p.user_id = auth.uid()
-    )
-  );
+  using (auth.role() = 'authenticated');
 
 drop policy if exists "insert own answer" on public.room_answers;
 create policy "insert own answer"

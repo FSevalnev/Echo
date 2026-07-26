@@ -160,6 +160,9 @@ export type Dictionary = {
     subjectPlaceholder: string;
     topicLabel: string;
     topicPlaceholder: string;
+    randomTopic: string;
+    randomTopicLoading: string;
+    randomTopicError: string;
     levelLabel: string;
     roundsLabel: string;
     secondsLabel: string;
@@ -406,6 +409,9 @@ export const translations: Record<Lang, Dictionary> = {
       subjectPlaceholder: "e.g. Biology, Math, History...",
       topicLabel: "Topic",
       topicPlaceholder: "e.g. Osmosis, Newton's second law...",
+      randomTopic: "🎲 Random topic",
+      randomTopicLoading: "Picking...",
+      randomTopicError: "Couldn't generate a topic. Try again or type your own.",
       levelLabel: "Level",
       roundsLabel: "Rounds",
       secondsLabel: "Seconds per round",
@@ -444,7 +450,7 @@ export const translations: Record<Lang, Dictionary> = {
       roundScoreLabel: "Round score",
       totalScoreLabel: "Total score",
       yourFeedback: "Your feedback",
-      winnerAnswerLabel: "How the top answer explained it",
+      winnerAnswerLabel: "Everyone's answers this round",
       nextRound: "Next round",
       finishRoom: "Finish room",
       finalLeaderboardTitle: "Final results",
@@ -650,6 +656,9 @@ export const translations: Record<Lang, Dictionary> = {
       subjectPlaceholder: "например, биология, математика, история...",
       topicLabel: "Тема",
       topicPlaceholder: "например, осмос, второй закон Ньютона...",
+      randomTopic: "🎲 Случайная тема",
+      randomTopicLoading: "Подбираю...",
+      randomTopicError: "Не удалось подобрать тему. Попробуй ещё раз или впиши свою.",
       levelLabel: "Уровень",
       roundsLabel: "Раунды",
       secondsLabel: "Секунд на раунд",
@@ -688,7 +697,7 @@ export const translations: Record<Lang, Dictionary> = {
       roundScoreLabel: "Очки за раунд",
       totalScoreLabel: "Всего очков",
       yourFeedback: "Твой фидбек",
-      winnerAnswerLabel: "Как объяснил лучший ответ",
+      winnerAnswerLabel: "Ответы всех участников в этом раунде",
       nextRound: "Следующий раунд",
       finishRoom: "Завершить комнату",
       finalLeaderboardTitle: "Итоговый результат",
@@ -895,6 +904,9 @@ export const translations: Record<Lang, Dictionary> = {
       subjectPlaceholder: "масалан, биология, математика, таърих...",
       topicLabel: "Мавзӯъ",
       topicPlaceholder: "масалан, осмос, қонуни дуюми Нютон...",
+      randomTopic: "🎲 Мавзӯи тасодуфӣ",
+      randomTopicLoading: "Интихоб шуда истодааст...",
+      randomTopicError: "Мавзӯъ интихоб карда нашуд. Дубора кӯшиш кунед ё худатон нависед.",
       levelLabel: "Сатҳ",
       roundsLabel: "Даврҳо",
       secondsLabel: "Сония барои як давр",
@@ -933,7 +945,7 @@ export const translations: Record<Lang, Dictionary> = {
       roundScoreLabel: "Холи давра",
       totalScoreLabel: "Ҳамагӣ хол",
       yourFeedback: "Бозхӯрии шумо",
-      winnerAnswerLabel: "Ҷавоби беҳтарин чӣ тавр шарҳ дод",
+      winnerAnswerLabel: "Ҷавобҳои ҳамаи иштирокчиён дар ин давра",
       nextRound: "Давраи навбатӣ",
       finishRoom: "Утоқро анҷом диҳед",
       finalLeaderboardTitle: "Натиҷаи ниҳоӣ",

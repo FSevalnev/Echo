@@ -502,14 +502,30 @@ export default function RoomPage() {
               </div>
             )}
 
-            {roundStandings[0] && roundStandings[0].userId !== user?.id && (
-              <div className="rounded-3xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-gray-900">
-                <h3 className="font-semibold">{t.rooms.winnerAnswerLabel}</h3>
-                <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">
-                  {currentRoundAnswers.find((a) => a.user_id === roundStandings[0].userId)?.explanation}
-                </p>
-              </div>
-            )}
+            <div className="rounded-3xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-gray-900">
+              <h3 className="font-semibold">{t.rooms.winnerAnswerLabel}</h3>
+              <ul className="mt-3 space-y-4">
+                {roundStandings.map((s, i) => {
+                  const ans = currentRoundAnswers.find((a) => a.user_id === s.userId);
+                  if (!ans) return null;
+                  return (
+                    <li
+                      key={s.userId}
+                      className="border-t border-gray-100 pt-4 first:border-t-0 first:pt-0 dark:border-gray-800"
+                    >
+                      <div className="flex items-center justify-between text-sm font-medium">
+                        <span>
+                          {MEDALS[i] ?? `#${i + 1}`} {s.displayName}
+                          {s.userId === user?.id && ` (${t.rooms.youBadge})`}
+                        </span>
+                        <span>{s.score}/100</span>
+                      </div>
+                      <p className="mt-1 text-sm text-gray-600 dark:text-gray-300">{ans.explanation}</p>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
 
             {isHost ? (
               room.current_round < room.total_rounds ? (
