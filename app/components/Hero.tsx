@@ -77,40 +77,58 @@ export default function Hero() {
         {/* RIGHT */}
 
         <div
-          className="animate-fade-in-up rounded-3xl border border-gray-200 bg-white shadow-2xl p-8 transition-shadow duration-500 hover:shadow-[0_20px_60px_-15px_rgba(37,99,235,0.35)] dark:border-gray-800 dark:bg-gray-900"
+          className="animate-fade-in-up rounded-3xl border border-gray-200/80 bg-white p-6 shadow-[0_8px_40px_-12px_rgba(15,23,42,0.18)] ring-1 ring-black/5 transition-shadow duration-500 hover:shadow-[0_20px_60px_-15px_rgba(37,99,235,0.35)] sm:p-8 dark:border-gray-800 dark:bg-gray-900 dark:ring-white/5"
           style={{ animationDelay: "150ms" }}
         >
 
-          <p className="text-sm text-gray-500 dark:text-gray-400">
-            {t.hero.cardLabel}
-          </p>
+          <div className="flex items-center gap-2">
+            <span className="h-2 w-2 shrink-0 animate-pulse rounded-full bg-emerald-500" />
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              {t.hero.cardLabel}
+            </p>
+          </div>
 
-          <h3 className="mt-2 text-3xl font-bold">
+          <h3 className="mt-2 text-2xl font-bold sm:text-3xl">
             {t.hero.cardTitle}
           </h3>
 
-          <p className="mt-6 text-6xl font-bold text-blue-600 dark:text-blue-400">
+          <p className="mt-6 bg-gradient-to-r from-blue-600 to-indigo-500 bg-clip-text text-5xl font-bold text-transparent sm:text-6xl dark:from-blue-400 dark:to-indigo-400">
             92%
           </p>
 
           <div className="mt-6 h-3 rounded-full bg-gray-200 overflow-hidden dark:bg-gray-800">
 
-            <div className="animate-grow-bar h-full w-[92%] rounded-full bg-blue-600 dark:bg-blue-500"></div>
+            <div className="animate-grow-bar h-full w-[92%] rounded-full bg-gradient-to-r from-blue-600 to-indigo-500 dark:from-blue-500 dark:to-indigo-400"></div>
 
           </div>
 
-          <div className="mt-8 space-y-4">
+          <div className="mt-8 space-y-3">
 
-            <div className="rounded-xl bg-green-50 p-4 dark:bg-green-500/10">
-              ✅ {t.hero.strength1}
+            <div className="flex items-start gap-3 rounded-xl bg-green-50 p-4 dark:bg-green-500/10">
+              <span className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-emerald-500 text-xs font-bold text-white">
+                ✓
+              </span>
+              <span className="text-sm leading-snug text-gray-700 dark:text-gray-200">
+                {t.hero.strength1}
+              </span>
             </div>
 
-            <div className="rounded-xl bg-green-50 p-4 dark:bg-green-500/10">
-              ✅ {t.hero.strength2}
+            <div className="flex items-start gap-3 rounded-xl bg-green-50 p-4 dark:bg-green-500/10">
+              <span className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-emerald-500 text-xs font-bold text-white">
+                ✓
+              </span>
+              <span className="text-sm leading-snug text-gray-700 dark:text-gray-200">
+                {t.hero.strength2}
+              </span>
             </div>
 
-            <div className="rounded-xl bg-yellow-50 p-4 dark:bg-yellow-500/10">
-              ⚠ {t.hero.gap1}
+            <div className="flex items-start gap-3 rounded-xl bg-yellow-50 p-4 dark:bg-yellow-500/10">
+              <span className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-yellow-500 text-xs font-bold text-white">
+                !
+              </span>
+              <span className="text-sm leading-snug text-gray-700 dark:text-gray-200">
+                {t.hero.gap1}
+              </span>
             </div>
 
           </div>
