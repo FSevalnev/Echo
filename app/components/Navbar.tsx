@@ -56,6 +56,10 @@ export default function Navbar() {
           <Link href="/rooms" className="hover:text-black transition dark:hover:text-white">
             {t.nav.rooms}
           </Link>
+
+          <a href="#reviews" className="hover:text-black transition dark:hover:text-white">
+            {t.nav.reviews}
+          </a>
         </nav>
 
         {/* Desktop right-side cluster — unchanged, just hidden on mobile */}
@@ -105,6 +109,9 @@ export default function Navbar() {
             <Link href="/rooms" onClick={() => setMobileOpen(false)} className="hover:text-black transition dark:hover:text-white">
               {t.nav.rooms}
             </Link>
+            <a href="#reviews" onClick={() => setMobileOpen(false)} className="hover:text-black transition dark:hover:text-white">
+              {t.nav.reviews}
+            </a>
           </nav>
 
           <div className="mt-5 flex flex-wrap items-center gap-3">

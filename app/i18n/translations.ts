@@ -13,6 +13,7 @@ export type Dictionary = {
     features: string;
     tryEcho: string;
     rooms: string;
+    reviews: string;
   };
   hero: {
     badge: string;
@@ -254,6 +255,7 @@ export type Dictionary = {
     backHome: string;
     leaveRoom: string;
     hostOnlyHint: string;
+    noAnswerSubmitted: string;
   };
   reviews: {
     leaveReviewTitle: string;
@@ -279,6 +281,7 @@ export const translations: Record<Lang, Dictionary> = {
       features: "Features",
       tryEcho: "Try Echo",
       rooms: "Rooms",
+      reviews: "Reviews",
     },
     hero: {
       badge: "✨ AI-powered learning companion",
@@ -562,6 +565,7 @@ export const translations: Record<Lang, Dictionary> = {
       backHome: "← Back to Echo",
       leaveRoom: "Leave room",
       hostOnlyHint: "Only the host can do this.",
+      noAnswerSubmitted: "No answer submitted in time.",
     },
     reviews: {
       leaveReviewTitle: "Leave a review",
@@ -586,6 +590,7 @@ export const translations: Record<Lang, Dictionary> = {
       features: "Возможности",
       tryEcho: "Попробовать Echo",
       rooms: "Комнаты",
+      reviews: "Отзывы",
     },
     hero: {
       badge: "✨ Обучение с помощью ИИ",
@@ -868,6 +873,7 @@ export const translations: Record<Lang, Dictionary> = {
       backHome: "← Назад в Echo",
       leaveRoom: "Покинуть комнату",
       hostOnlyHint: "Это может сделать только хост.",
+      noAnswerSubmitted: "Ответ не был отправлен вовремя.",
     },
     reviews: {
       leaveReviewTitle: "Оставить отзыв",
@@ -892,6 +898,7 @@ export const translations: Record<Lang, Dictionary> = {
       features: "Хусусиятҳо",
       tryEcho: "Echo-ро санҷед",
       rooms: "Утоқҳо",
+      reviews: "Тақризҳо",
     },
     hero: {
       badge: "✨ Ҳамсафари омӯзиш бо AI",
@@ -1175,6 +1182,7 @@ export const translations: Record<Lang, Dictionary> = {
       backHome: "← Бозгашт ба Echo",
       leaveRoom: "Утоқро тарк кунед",
       hostOnlyHint: "Инро танҳо хост карда метавонад.",
+      noAnswerSubmitted: "Ҷавоб дар вақташ фиристода нашуд.",
     },
     reviews: {
       leaveReviewTitle: "Тақриз гузоштан",

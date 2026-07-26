@@ -7,6 +7,7 @@ import { Dictionary, Lang } from "../i18n/translations";
 import { useAuth, isSupabaseConfigured } from "../auth/AuthContext";
 import { createClient } from "../../lib/supabase/client";
 import { SCHOOL_GRADE_OPTIONS } from "../../lib/rooms";
+import { SUPPORTED_MIME_TYPES, MAX_RECORDING_MS, blobToBase64 } from "../../lib/audio";
 
 type Level = "schoolchild" | "student" | "professional";
 type Cause = "theory" | "carelessness" | "misreading" | "logic" | "calculation";
@@ -318,27 +319,6 @@ function getMockFeedback(topic: string, explanation: string, lang: Lang): Analys
     followUp,
   };
 }
-
-function blobToBase64(blob: Blob): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      const result = reader.result as string;
-      resolve(result.split(",")[1] ?? "");
-    };
-    reader.onerror = reject;
-    reader.readAsDataURL(blob);
-  });
-}
-
-const SUPPORTED_MIME_TYPES = [
-  "audio/webm;codecs=opus",
-  "audio/webm",
-  "audio/ogg;codecs=opus",
-  "audio/mp4",
-];
-
-const MAX_RECORDING_MS = 90_000;
 
 const SUPPORTED_FILE_TYPES = ["image/jpeg", "image/png", "image/webp", "image/heic", "application/pdf"];
 const MAX_FILE_BYTES = 15 * 1024 * 1024; // 15MB — comfortably under Gemini's inline-data limit

@@ -1,11 +1,12 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState, FormEvent } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useAuth, isSupabaseConfigured } from "../../auth/AuthContext";
 import { createClient } from "../../../lib/supabase/client";
 import { useLanguage } from "../../i18n/LanguageContext";
+import { SUPPORTED_MIME_TYPES, MAX_RECORDING_MS, blobToBase64 } from "../../../lib/audio";
 import {
   normalizeRoomCode,
   type Room,
@@ -37,13 +38,32 @@ export default function RoomPage() {
   const [loading, setLoading] = useState(true);
 
   const [answerText, setAnswerText] = useState("");
+  const [answerMode, setAnswerMode] = useState<"text" | "voice">("text");
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [starting, setStarting] = useState(false);
   const [copied, setCopied] = useState(false);
   const [nowTick, setNowTick] = useState(() => Date.now());
 
+  // Voice answer mode: same "record -> transcribe -> edit -> submit" flow
+  // as the main Try Echo voice input, embedded here for round answers.
+  const [recordingState, setRecordingState] = useState<"idle" | "recording" | "recorded">("idle");
+  const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
+  const [audioUrl, setAudioUrl] = useState<string | null>(null);
+  const [micError, setMicError] = useState<string | null>(null);
+  const [transcribeStatus, setTranscribeStatus] = useState<"idle" | "loading" | "done" | "error">(
+    "idle"
+  );
+  const [voiceTranscript, setVoiceTranscript] = useState("");
+  const [transcribeError, setTranscribeError] = useState<string | null>(null);
+
   const advancingRef = useRef(false);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const chunksRef = useRef<Blob[]>([]);
+  const autoStopTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // Guards against the round-timeout auto-submit and a manual click firing
+  // twice for the same round (e.g. both racing right at the deadline).
+  const submitLockRef = useRef<string | null>(null);
 
   const myParticipant = useMemo(
     () => participants.find((p) => p.user_id === user?.id) ?? null,
@@ -223,6 +243,122 @@ export default function RoomPage() {
     })();
   }, [isHost, room, currentRound, participants.length, currentRoundAnswers.length, secondsLeft]);
 
+  // Auto-submit whatever this participant currently has (typed text, an
+  // edited voice transcript, or nothing at all) the instant the round's
+  // timer runs out, instead of just disabling the submit button and
+  // leaving them out of the round if they didn't click in time.
+  useEffect(() => {
+    if (!room || !currentRound) return;
+    if (room.status !== "in_round" && room.status !== "round_results") return;
+    if (myCurrentAnswer) return;
+    if (secondsLeft > 0) return;
+    void submitAnswer();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [secondsLeft, room, currentRound, myCurrentAnswer]);
+
+  // Reset the per-round input state (typed text, recording, transcript)
+  // whenever a new round starts — otherwise leftover text/audio from the
+  // previous round would carry over into the next one.
+  useEffect(() => {
+    setAnswerText("");
+    setAnswerMode("text");
+    setSubmitError(null);
+    resetRecording();
+    submitLockRef.current = null;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentRound?.id]);
+
+  useEffect(() => {
+    return () => {
+      if (audioUrl) URL.revokeObjectURL(audioUrl);
+      if (autoStopTimeoutRef.current) clearTimeout(autoStopTimeoutRef.current);
+    };
+  }, [audioUrl]);
+
+  async function startRecording() {
+    setMicError(null);
+
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const mimeType = SUPPORTED_MIME_TYPES.find(
+        (type) => typeof MediaRecorder !== "undefined" && MediaRecorder.isTypeSupported(type)
+      );
+      const recorder = mimeType ? new MediaRecorder(stream, { mimeType }) : new MediaRecorder(stream);
+      chunksRef.current = [];
+
+      recorder.ondataavailable = (e) => {
+        if (e.data.size > 0) chunksRef.current.push(e.data);
+      };
+
+      recorder.onstop = () => {
+        const blob = new Blob(chunksRef.current, { type: recorder.mimeType || "audio/webm" });
+        setAudioBlob(blob);
+        setAudioUrl(URL.createObjectURL(blob));
+        stream.getTracks().forEach((track) => track.stop());
+        void transcribeAudio(blob);
+      };
+
+      mediaRecorderRef.current = recorder;
+      recorder.start();
+      setRecordingState("recording");
+
+      autoStopTimeoutRef.current = setTimeout(() => {
+        if (mediaRecorderRef.current?.state === "recording") stopRecording();
+      }, MAX_RECORDING_MS);
+    } catch (err) {
+      console.error("Echo: microphone access failed —", err);
+      setMicError(t.tryEcho.micError);
+    }
+  }
+
+  function stopRecording() {
+    if (autoStopTimeoutRef.current) {
+      clearTimeout(autoStopTimeoutRef.current);
+      autoStopTimeoutRef.current = null;
+    }
+    mediaRecorderRef.current?.stop();
+    setRecordingState("recorded");
+  }
+
+  function resetRecording() {
+    if (audioUrl) URL.revokeObjectURL(audioUrl);
+    setAudioBlob(null);
+    setAudioUrl(null);
+    setRecordingState("idle");
+    setTranscribeStatus("idle");
+    setVoiceTranscript("");
+    setTranscribeError(null);
+  }
+
+  async function transcribeAudio(blob: Blob) {
+    setTranscribeStatus("loading");
+    setTranscribeError(null);
+    setVoiceTranscript("");
+
+    try {
+      const audioBase64 = await blobToBase64(blob);
+      const res = await fetch("/api/transcribe", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          audioBase64,
+          audioMimeType: blob.type || "audio/webm",
+          lang: room?.lang ?? "en",
+        }),
+      });
+
+      if (!res.ok) throw new Error(`API responded with ${res.status}`);
+
+      const data = await res.json();
+      setVoiceTranscript(typeof data.transcript === "string" ? data.transcript : "");
+      setTranscribeStatus("done");
+    } catch (err) {
+      console.warn("Echo: transcription failed —", err);
+      setTranscribeStatus("error");
+      setTranscribeError(t.tryEcho.transcribeError);
+    }
+  }
+
   async function startRound() {
     if (!room || !isHost) return;
     setStarting(true);
@@ -241,7 +377,6 @@ export default function RoomPage() {
       .update({ current_round: roundNumber, status: "in_round" })
       .eq("id", room.id);
 
-    setAnswerText("");
     setStarting(false);
   }
 
@@ -251,37 +386,88 @@ export default function RoomPage() {
     await supabase.from("rooms").update({ status: "finished" }).eq("id", room.id);
   }
 
-  async function handleSubmitAnswer(e: FormEvent) {
-    e.preventDefault();
-    if (!room || !currentRound || !myParticipant || !user || !answerText.trim()) return;
+  // Unified submit path for both a manual click and the round-timeout
+  // auto-submit effect above. Handles three cases: a typed text answer, a
+  // voice answer whose transcript was successfully edited/confirmed, and
+  // (only reachable via the timeout) nothing at all — recorded as a
+  // zero-score placeholder so the participant still shows up fairly in
+  // this round's standings instead of just disappearing from it.
+  async function submitAnswer() {
+    if (!room || !currentRound || !myParticipant || !user) return;
+    if (myCurrentAnswer) return;
+    if (submitLockRef.current === currentRound.id) return;
 
+    const hasEditedTranscript =
+      answerMode === "voice" && transcribeStatus === "done" && voiceTranscript.trim().length > 0;
+    const hasRawAudioFallback = answerMode === "voice" && !hasEditedTranscript && !!audioBlob;
+    const textAnswer =
+      answerMode === "text" ? answerText.trim() : hasEditedTranscript ? voiceTranscript.trim() : "";
+
+    submitLockRef.current = currentRound.id;
     setSubmitting(true);
     setSubmitError(null);
 
     try {
-      const res = await fetch("/api/analyze", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          mode: "text",
+      const supabase = createClient();
+
+      if (!textAnswer && !hasRawAudioFallback) {
+        const { error } = await supabase.from("room_answers").insert({
+          room_id: room.id,
+          room_round_id: currentRound.id,
+          participant_id: myParticipant.id,
+          user_id: user.id,
+          explanation: "",
+          score: 0,
+          summary: null,
+          mistakes: [],
+          recommendations: [],
+        });
+        if (error) throw error;
+        await refetchAll();
+        return;
+      }
+
+      let payload: Record<string, unknown>;
+
+      if (hasRawAudioFallback && audioBlob) {
+        // Transcription failed or never finished before time ran out —
+        // fall back to sending the raw audio, same as Try Echo's fallback.
+        const audioBase64 = await blobToBase64(audioBlob);
+        payload = {
+          mode: "audio",
           topic: room.topic,
-          explanation: answerText.trim(),
+          audioBase64,
+          audioMimeType: audioBlob.type || "audio/webm",
           lang: room.lang,
           level: room.level,
           grade: room.level === "schoolchild" ? room.grade ?? undefined : undefined,
-        }),
+        };
+      } else {
+        payload = {
+          mode: "text",
+          topic: room.topic,
+          explanation: textAnswer,
+          lang: room.lang,
+          level: room.level,
+          grade: room.level === "schoolchild" ? room.grade ?? undefined : undefined,
+        };
+      }
+
+      const res = await fetch("/api/analyze", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
       });
 
       if (!res.ok) throw new Error("analyze failed");
       const feedback = await res.json();
 
-      const supabase = createClient();
       const { error } = await supabase.from("room_answers").insert({
         room_id: room.id,
         room_round_id: currentRound.id,
         participant_id: myParticipant.id,
         user_id: user.id,
-        explanation: answerText.trim(),
+        explanation: textAnswer || feedback.transcript || "",
         score: feedback.score,
         summary: feedback.summary,
         mistakes: feedback.mistakes ?? [],
@@ -292,6 +478,7 @@ export default function RoomPage() {
       await refetchAll();
     } catch {
       setSubmitError(t.rooms.genericError);
+      submitLockRef.current = null; // allow a retry
     } finally {
       setSubmitting(false);
     }
@@ -438,24 +625,140 @@ export default function RoomPage() {
             </div>
 
             {!myCurrentAnswer ? (
-              <form onSubmit={handleSubmitAnswer} className="space-y-4 rounded-3xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-gray-900">
-                <label className="text-sm text-gray-500 dark:text-gray-400">{t.rooms.answerLabel}</label>
-                <textarea
-                  value={answerText}
-                  onChange={(e) => setAnswerText(e.target.value)}
-                  placeholder={t.rooms.answerPlaceholder}
-                  rows={6}
-                  className="w-full rounded-xl border border-gray-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-950"
-                />
+              <div className="space-y-4 rounded-3xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-gray-900">
+                <div className="flex w-fit flex-wrap gap-1 rounded-full border border-gray-300 p-1 dark:border-gray-700">
+                  <button
+                    type="button"
+                    onClick={() => setAnswerMode("text")}
+                    className={`rounded-full px-4 py-1.5 text-sm font-semibold transition ${
+                      answerMode === "text"
+                        ? "bg-black text-white dark:bg-white dark:text-black"
+                        : "text-gray-500 hover:text-black dark:text-gray-400 dark:hover:text-white"
+                    }`}
+                  >
+                    {t.tryEcho.modeText}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setAnswerMode("voice")}
+                    className={`rounded-full px-4 py-1.5 text-sm font-semibold transition ${
+                      answerMode === "voice"
+                        ? "bg-black text-white dark:bg-white dark:text-black"
+                        : "text-gray-500 hover:text-black dark:text-gray-400 dark:hover:text-white"
+                    }`}
+                  >
+                    {t.tryEcho.modeVoice}
+                  </button>
+                </div>
+
+                {answerMode === "text" ? (
+                  <div>
+                    <label className="text-sm text-gray-500 dark:text-gray-400">{t.rooms.answerLabel}</label>
+                    <textarea
+                      value={answerText}
+                      onChange={(e) => setAnswerText(e.target.value)}
+                      placeholder={t.rooms.answerPlaceholder}
+                      rows={6}
+                      className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-950"
+                    />
+                  </div>
+                ) : (
+                  <div className="rounded-xl border border-dashed border-gray-300 p-6 text-center dark:border-gray-700">
+                    {recordingState === "idle" && (
+                      <button
+                        type="button"
+                        onClick={startRecording}
+                        className="rounded-full bg-black px-6 py-3 font-semibold text-white transition hover:scale-105 dark:bg-white dark:text-black"
+                      >
+                        🎙️ {t.tryEcho.recordStart}
+                      </button>
+                    )}
+
+                    {recordingState === "recording" && (
+                      <div className="space-y-3">
+                        <button
+                          type="button"
+                          onClick={stopRecording}
+                          className="animate-pulse rounded-full bg-red-600 px-6 py-3 font-semibold text-white transition hover:scale-105"
+                        >
+                          ⏹ {t.tryEcho.recordStop}
+                        </button>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">{t.tryEcho.recordingHint}</p>
+                      </div>
+                    )}
+
+                    {recordingState === "recorded" && audioUrl && (
+                      <div className="space-y-3">
+                        <audio controls src={audioUrl} className="mx-auto w-full max-w-xs" />
+
+                        {transcribeStatus === "loading" && (
+                          <p className="text-sm text-gray-500 animate-pulse dark:text-gray-400">
+                            🧠 {t.tryEcho.transcribing}
+                          </p>
+                        )}
+
+                        {transcribeStatus === "done" && (
+                          <div className="text-left">
+                            <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                              {t.tryEcho.transcriptEditLabel}
+                            </label>
+                            <textarea
+                              value={voiceTranscript}
+                              onChange={(e) => setVoiceTranscript(e.target.value)}
+                              rows={6}
+                              className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-950"
+                            />
+                            <p className="mt-1 text-xs text-gray-400 dark:text-gray-500">
+                              {t.tryEcho.transcriptEditHint}
+                            </p>
+                          </div>
+                        )}
+
+                        {transcribeStatus === "error" && (
+                          <div className="text-left">
+                            <p className="text-sm text-red-600 dark:text-red-400">{transcribeError}</p>
+                            <button
+                              type="button"
+                              onClick={() => audioBlob && transcribeAudio(audioBlob)}
+                              className="mt-1 text-sm font-semibold text-blue-600 hover:underline dark:text-blue-400"
+                            >
+                              ↻ {t.tryEcho.transcribeRetry}
+                            </button>
+                          </div>
+                        )}
+
+                        <button
+                          type="button"
+                          onClick={resetRecording}
+                          className="text-sm font-semibold text-blue-600 hover:underline dark:text-blue-400"
+                        >
+                          ↻ {t.tryEcho.recordAgain}
+                        </button>
+                      </div>
+                    )}
+
+                    {micError && <p className="mt-3 text-sm text-red-600 dark:text-red-400">{micError}</p>}
+                  </div>
+                )}
+
                 {submitError && <p className="text-sm text-red-600 dark:text-red-400">{submitError}</p>}
+
                 <button
-                  type="submit"
-                  disabled={submitting || !answerText.trim() || secondsLeft <= 0}
+                  type="button"
+                  onClick={() => submitAnswer()}
+                  disabled={
+                    submitting ||
+                    (answerMode === "text"
+                      ? !answerText.trim()
+                      : transcribeStatus === "done"
+                      ? !voiceTranscript.trim()
+                      : !(transcribeStatus === "error" && audioBlob))
+                  }
                   className="w-full rounded-full bg-black px-6 py-3 font-semibold text-white transition hover:scale-105 disabled:opacity-50 dark:bg-white dark:text-black"
                 >
                   {submitting ? t.rooms.submittingAnswer : t.rooms.submitAnswer}
                 </button>
-              </form>
+              </div>
             ) : (
               <div className="rounded-3xl border border-gray-200 bg-white p-6 text-center dark:border-gray-800 dark:bg-gray-900">
                 <p className="font-medium">{t.rooms.answerSubmitted}</p>
@@ -521,7 +824,9 @@ export default function RoomPage() {
                         </span>
                         <span>{s.score}/100</span>
                       </div>
-                      <p className="mt-1 text-sm text-gray-600 dark:text-gray-300">{ans.explanation}</p>
+                      <p className="mt-1 text-sm text-gray-600 dark:text-gray-300">
+                        {ans.explanation.trim() ? ans.explanation : t.rooms.noAnswerSubmitted}
+                      </p>
                     </li>
                   );
                 })}

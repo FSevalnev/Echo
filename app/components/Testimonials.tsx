@@ -130,7 +130,7 @@ export default function Testimonials() {
   const displayRating = hoverRating || rating;
 
   return (
-    <section className="relative overflow-hidden bg-gradient-to-b from-gray-950 to-black py-20">
+    <section id="reviews" className="relative overflow-hidden bg-gradient-to-b from-gray-950 to-black py-20 scroll-mt-24">
       <div className="mx-auto mb-14 max-w-lg px-6">
         <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-6 backdrop-blur-md">
           <h3 className="text-lg font-semibold text-white">{t.reviews.leaveReviewTitle}</h3>
