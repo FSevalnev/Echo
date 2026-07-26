@@ -254,33 +254,51 @@ export default function RoomsPage() {
 
               <div>
                 <label className="text-sm text-gray-500 dark:text-gray-400">{t.rooms.topicModeLabel}</label>
-                <div className="mt-1 flex w-fit flex-wrap gap-1 rounded-full border border-gray-300 p-1 dark:border-gray-700">
+                <div className="mt-2 grid grid-cols-1 gap-3 sm:grid-cols-2">
                   <button
                     type="button"
                     onClick={() => setTopicMode("fixed")}
-                    className={`rounded-full px-4 py-1.5 text-sm font-semibold transition ${
+                    aria-pressed={topicMode === "fixed"}
+                    className={`rounded-2xl border p-4 text-left transition duration-300 ease-out ${
                       topicMode === "fixed"
-                        ? "bg-black text-white dark:bg-white dark:text-black"
-                        : "text-gray-500 hover:text-black dark:text-gray-400 dark:hover:text-white"
+                        ? "border-blue-500 bg-blue-50 shadow-sm dark:border-blue-400 dark:bg-blue-500/10"
+                        : "border-gray-300 hover:border-gray-400 hover:bg-gray-50 dark:border-gray-700 dark:hover:border-gray-600 dark:hover:bg-gray-800/50"
                     }`}
                   >
-                    {t.rooms.topicModeFixed}
+                    <div className="flex items-center justify-between">
+                      <span className="text-2xl">🎯</span>
+                      {topicMode === "fixed" && (
+                        <span className="grid h-5 w-5 place-items-center rounded-full bg-blue-600 text-xs font-bold text-white dark:bg-blue-400 dark:text-blue-950">
+                          ✓
+                        </span>
+                      )}
+                    </div>
+                    <p className="mt-2 font-semibold">{t.rooms.topicModeFixed}</p>
+                    <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">{t.rooms.topicModeFixedHint}</p>
                   </button>
+
                   <button
                     type="button"
                     onClick={() => setTopicMode("random")}
-                    className={`rounded-full px-4 py-1.5 text-sm font-semibold transition ${
+                    aria-pressed={topicMode === "random"}
+                    className={`rounded-2xl border p-4 text-left transition duration-300 ease-out ${
                       topicMode === "random"
-                        ? "bg-black text-white dark:bg-white dark:text-black"
-                        : "text-gray-500 hover:text-black dark:text-gray-400 dark:hover:text-white"
+                        ? "border-blue-500 bg-blue-50 shadow-sm dark:border-blue-400 dark:bg-blue-500/10"
+                        : "border-gray-300 hover:border-gray-400 hover:bg-gray-50 dark:border-gray-700 dark:hover:border-gray-600 dark:hover:bg-gray-800/50"
                     }`}
                   >
-                    {t.rooms.topicModeRandom}
+                    <div className="flex items-center justify-between">
+                      <span className="text-2xl">🎲</span>
+                      {topicMode === "random" && (
+                        <span className="grid h-5 w-5 place-items-center rounded-full bg-blue-600 text-xs font-bold text-white dark:bg-blue-400 dark:text-blue-950">
+                          ✓
+                        </span>
+                      )}
+                    </div>
+                    <p className="mt-2 font-semibold">{t.rooms.topicModeRandom}</p>
+                    <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">{t.rooms.topicModeRandomHint}</p>
                   </button>
                 </div>
-                <p className="mt-1 text-xs text-gray-400 dark:text-gray-500">
-                  {topicMode === "fixed" ? t.rooms.topicModeFixedHint : t.rooms.topicModeRandomHint}
-                </p>
               </div>
 
               {topicMode === "fixed" && (
