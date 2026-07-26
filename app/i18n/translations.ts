@@ -208,6 +208,11 @@ export type Dictionary = {
     randomTopic: string;
     randomTopicLoading: string;
     randomTopicError: string;
+    topicModeLabel: string;
+    topicModeFixed: string;
+    topicModeRandom: string;
+    topicModeFixedHint: string;
+    topicModeRandomHint: string;
     levelLabel: string;
     gradeLabel: string;
     roundsLabel: string;
@@ -518,6 +523,11 @@ export const translations: Record<Lang, Dictionary> = {
       randomTopic: "🎲 Random topic",
       randomTopicLoading: "Picking...",
       randomTopicError: "Couldn't generate a topic. Try again or type your own.",
+      topicModeLabel: "Topic mode",
+      topicModeFixed: "One topic",
+      topicModeRandom: "Random each round",
+      topicModeFixedHint: "Everyone answers the same topic all game.",
+      topicModeRandomHint: "A fresh AI-generated topic based on the subject every round.",
       levelLabel: "Level",
       gradeLabel: "Grade",
       roundsLabel: "Rounds",
@@ -826,6 +836,11 @@ export const translations: Record<Lang, Dictionary> = {
       randomTopic: "🎲 Случайная тема",
       randomTopicLoading: "Подбираю...",
       randomTopicError: "Не удалось подобрать тему. Попробуй ещё раз или впиши свою.",
+      topicModeLabel: "Режим темы",
+      topicModeFixed: "Одна тема",
+      topicModeRandom: "Случайная каждый раунд",
+      topicModeFixedHint: "Все отвечают на одну и ту же тему всю игру.",
+      topicModeRandomHint: "Каждый раунд ИИ придумывает новую тему по выбранному предмету.",
       levelLabel: "Уровень",
       gradeLabel: "Класс",
       roundsLabel: "Раунды",
@@ -1135,6 +1150,11 @@ export const translations: Record<Lang, Dictionary> = {
       randomTopic: "🎲 Мавзӯи тасодуфӣ",
       randomTopicLoading: "Интихоб шуда истодааст...",
       randomTopicError: "Мавзӯъ интихоб карда нашуд. Дубора кӯшиш кунед ё худатон нависед.",
+      topicModeLabel: "Реҷаи мавзӯъ",
+      topicModeFixed: "Як мавзӯъ",
+      topicModeRandom: "Тасодуфӣ дар ҳар давра",
+      topicModeFixedHint: "Ҳама дар тамоми бозӣ ба як мавзӯъ ҷавоб медиҳанд.",
+      topicModeRandomHint: "Дар ҳар давра AI мавзӯи нав дар асоси фан пешниҳод мекунад.",
       levelLabel: "Сатҳ",
       gradeLabel: "Синф",
       roundsLabel: "Даврҳо",

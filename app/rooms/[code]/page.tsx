@@ -366,10 +366,38 @@ export default function RoomPage() {
     const roundNumber = room.current_round + 1;
     const endsAt = new Date(Date.now() + room.seconds_per_round * 1000).toISOString();
 
+    // "random" mode: ask for a fresh topic (based on the room's subject)
+    // for every round instead of reusing the same one all game. Falls back
+    // to the room's stored topic if the call fails, so a flaky request
+    // never blocks starting the round.
+    let question = room.topic;
+    if (room.topic_mode === "random") {
+      try {
+        const res = await fetch("/api/random-topic", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            subject: room.subject,
+            level: room.level,
+            grade: room.level === "schoolchild" ? room.grade ?? undefined : undefined,
+            lang: room.lang,
+          }),
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (typeof data.topic === "string" && data.topic.trim()) {
+            question = data.topic.trim();
+          }
+        }
+      } catch (err) {
+        console.warn("Echo: random topic generation failed, reusing subject —", err);
+      }
+    }
+
     await supabase.from("room_rounds").insert({
       room_id: room.id,
       round_number: roundNumber,
-      question: room.topic,
+      question,
       ends_at: endsAt,
     });
     await supabase
@@ -435,7 +463,7 @@ export default function RoomPage() {
         const audioBase64 = await blobToBase64(audioBlob);
         payload = {
           mode: "audio",
-          topic: room.topic,
+          topic: currentRound.question,
           audioBase64,
           audioMimeType: audioBlob.type || "audio/webm",
           lang: room.lang,
@@ -445,7 +473,7 @@ export default function RoomPage() {
       } else {
         payload = {
           mode: "text",
-          topic: room.topic,
+          topic: currentRound.question,
           explanation: textAnswer,
           lang: room.lang,
           level: room.level,
@@ -556,7 +584,9 @@ export default function RoomPage() {
         </div>
 
         <h1 className="mt-4 text-3xl font-bold">{room.subject}</h1>
-        <p className="text-gray-500 dark:text-gray-400">{room.topic}</p>
+        <p className="text-gray-500 dark:text-gray-400">
+          {room.topic_mode === "random" ? t.rooms.topicModeRandomHint : room.topic}
+        </p>
 
         {/* LOBBY */}
         {room.status === "lobby" && (
@@ -622,6 +652,11 @@ export default function RoomPage() {
               <span className={secondsLeft <= 10 ? "font-bold text-red-500" : "font-semibold"}>
                 {secondsLeft > 0 ? `${t.rooms.timeLeft}: ${secondsLeft}s` : t.rooms.timeUp}
               </span>
+            </div>
+
+            <div className="rounded-2xl border border-gray-200 bg-white px-5 py-4 text-center dark:border-gray-800 dark:bg-gray-900">
+              <p className="text-sm text-gray-500 dark:text-gray-400">{t.rooms.topicLabel}</p>
+              <p className="mt-1 text-lg font-semibold">{currentRound.question}</p>
             </div>
 
             {!myCurrentAnswer ? (
@@ -778,6 +813,11 @@ export default function RoomPage() {
             <h2 className="text-xl font-semibold">
               {t.rooms.leaderboardTitle} — {t.rooms.roundLabel} {room.current_round}
             </h2>
+
+            <div className="rounded-2xl border border-gray-200 bg-white px-5 py-4 text-center dark:border-gray-800 dark:bg-gray-900">
+              <p className="text-sm text-gray-500 dark:text-gray-400">{t.rooms.topicLabel}</p>
+              <p className="mt-1 text-lg font-semibold">{currentRound.question}</p>
+            </div>
 
             <ul className="space-y-2">
               {roundStandings.map((s, i) => (

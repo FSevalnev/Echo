@@ -104,12 +104,14 @@ create table if not exists public.rooms (
   seconds_per_round int not null default 90 check (seconds_per_round between 20 and 600),
   current_round int not null default 0,
   status text not null default 'lobby', -- 'lobby' | 'in_round' | 'round_results' | 'finished'
+  topic_mode text not null default 'fixed' check (topic_mode in ('fixed', 'random')), -- 'fixed' = same topic.question all game; 'random' = a fresh AI topic generated each round based on `subject`
   created_at timestamptz not null default now()
 );
 
--- Older installs already have this table without the column above —
+-- Older installs already have this table without the columns above —
 -- this is a no-op on a fresh install where the CREATE TABLE just ran.
 alter table public.rooms add column if not exists grade int check (grade between 1 and 11);
+alter table public.rooms add column if not exists topic_mode text not null default 'fixed' check (topic_mode in ('fixed', 'random'));
 
 create table if not exists public.room_participants (
   id uuid primary key default gen_random_uuid(),

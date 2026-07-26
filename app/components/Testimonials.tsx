@@ -40,6 +40,40 @@ function Card({ display_name, rating, body }: Review) {
   );
 }
 
+// The seamless-loop marquee works by rendering each row's cards twice back
+// to back ([...items, ...items]) so the CSS animation can scroll from 0% to
+// -50% and loop invisibly. That trick only reads as "infinite" once there
+// are enough distinct cards in the row — with just 1-2 reviews, doubling
+// makes the exact same card(s) appear twice, side by side, which looks like
+// a duplicate-data bug rather than an intentional loop. Below this
+// threshold, fall back to a plain static (non-looping, non-duplicated) row.
+const MIN_MARQUEE_ITEMS = 4;
+
+function Row({ items, direction }: { items: Review[]; direction: "left" | "right" }) {
+  if (items.length === 0) return null;
+
+  if (items.length < MIN_MARQUEE_ITEMS) {
+    return (
+      <div className="flex flex-wrap justify-center gap-6 px-6">
+        {items.map((item) => (
+          <Card key={item.id} {...item} />
+        ))}
+      </div>
+    );
+  }
+
+  const animationClass = direction === "left" ? "marquee-left" : "marquee-right";
+  return (
+    <div className="overflow-hidden">
+      <div className={`${animationClass} flex w-max gap-6 will-change-transform`}>
+        {[...items, ...items].map((item, i) => (
+          <Card key={`${direction}-${item.id}-${i}`} {...item} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default function Testimonials() {
   const { t } = useLanguage();
   const { user, loading: authLoading } = useAuth();
@@ -208,23 +242,8 @@ export default function Testimonials() {
 
       {reviews.length > 0 && (
         <div className="space-y-6">
-          <div className="overflow-hidden">
-            <div className="marquee-left flex w-max gap-6 will-change-transform">
-              {[...row1, ...row1].map((item, i) => (
-                <Card key={`r1-${item.id}-${i}`} {...item} />
-              ))}
-            </div>
-          </div>
-
-          {row2.length > 0 && (
-            <div className="overflow-hidden">
-              <div className="marquee-right flex w-max gap-6 will-change-transform">
-                {[...row2, ...row2].map((item, i) => (
-                  <Card key={`r2-${item.id}-${i}`} {...item} />
-                ))}
-              </div>
-            </div>
-          )}
+          <Row items={row1} direction="left" />
+          <Row items={row2} direction="right" />
         </div>
       )}
 

@@ -5,6 +5,10 @@
 export type RoomLevel = "schoolchild" | "student" | "professional";
 export type RoomStatus = "lobby" | "in_round" | "round_results" | "finished";
 export type RoundStatus = "active" | "scored";
+// "fixed" = the whole game shares one topic (`room.topic`).
+// "random" = a fresh AI-generated topic (based on `subject`) is created for
+// every round instead — see `currentRound.question` for the live topic.
+export type TopicMode = "fixed" | "random";
 
 export type Room = {
   id: string;
@@ -19,6 +23,7 @@ export type Room = {
   seconds_per_round: number;
   current_round: number;
   status: RoomStatus;
+  topic_mode: TopicMode;
   created_at: string;
 };
 
