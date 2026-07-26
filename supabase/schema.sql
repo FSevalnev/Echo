@@ -39,3 +39,40 @@ drop policy if exists "delete own attempts" on public.attempts;
 create policy "delete own attempts"
   on public.attempts for delete
   using (auth.uid() = user_id);
+
+-- Profile photo storage. Public bucket (so avatar URLs work directly in
+-- <img> tags without signing), but write access is still locked down: a
+-- user may only upload/replace/delete files inside a folder named after
+-- their own user id (avatars/<user_id>/...), enforced below.
+insert into storage.buckets (id, name, public)
+values ('avatars', 'avatars', true)
+on conflict (id) do nothing;
+
+drop policy if exists "avatar public read" on storage.objects;
+create policy "avatar public read"
+  on storage.objects for select
+  using (bucket_id = 'avatars');
+
+drop policy if exists "avatar owner insert" on storage.objects;
+create policy "avatar owner insert"
+  on storage.objects for insert
+  with check (
+    bucket_id = 'avatars'
+    and (storage.foldername(name))[1] = auth.uid()::text
+  );
+
+drop policy if exists "avatar owner update" on storage.objects;
+create policy "avatar owner update"
+  on storage.objects for update
+  using (
+    bucket_id = 'avatars'
+    and (storage.foldername(name))[1] = auth.uid()::text
+  );
+
+drop policy if exists "avatar owner delete" on storage.objects;
+create policy "avatar owner delete"
+  on storage.objects for delete
+  using (
+    bucket_id = 'avatars'
+    and (storage.foldername(name))[1] = auth.uid()::text
+  );

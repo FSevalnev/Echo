@@ -132,6 +132,10 @@ export type Dictionary = {
     confirmPasswordLabel: string;
     passwordMismatch: string;
     passwordTooShort: string;
+    avatarLabel: string;
+    avatarChoose: string;
+    avatarTypeError: string;
+    avatarSizeError: string;
   };
   history: {
     title: string;
@@ -316,6 +320,10 @@ export const translations: Record<Lang, Dictionary> = {
       confirmPasswordLabel: "Confirm new password",
       passwordMismatch: "Passwords don't match.",
       passwordTooShort: "Password must be at least 6 characters.",
+      avatarLabel: "Profile photo",
+      avatarChoose: "Change photo",
+      avatarTypeError: "Please upload a JPG, PNG, or WEBP image.",
+      avatarSizeError: "That image is too large. Please keep it under 5MB.",
     },
     history: {
       title: "Your Progress",
@@ -498,6 +506,10 @@ export const translations: Record<Lang, Dictionary> = {
       confirmPasswordLabel: "Повтори новый пароль",
       passwordMismatch: "Пароли не совпадают.",
       passwordTooShort: "Пароль должен быть не короче 6 символов.",
+      avatarLabel: "Фото профиля",
+      avatarChoose: "Изменить фото",
+      avatarTypeError: "Загрузи изображение JPG, PNG или WEBP.",
+      avatarSizeError: "Файл слишком большой. Держи его меньше 5МБ.",
     },
     history: {
       title: "Твой прогресс",
@@ -681,6 +693,10 @@ export const translations: Record<Lang, Dictionary> = {
       confirmPasswordLabel: "Пароли нави худро такрор кунед",
       passwordMismatch: "Паролҳо мувофиқат намекунанд.",
       passwordTooShort: "Парол бояд ҳадди ақал аз 6 аломат иборат бошад.",
+      avatarLabel: "Акси профил",
+      avatarChoose: "Иваз кардани акс",
+      avatarTypeError: "Лутфан тасвири JPG, PNG ё WEBP бор кунед.",
+      avatarSizeError: "Файл хеле калон аст. Онро то 5МБ нигоҳ доред.",
     },
     history: {
       title: "Пешрафти шумо",

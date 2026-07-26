@@ -1,12 +1,15 @@
 "use client";
 
-import { useEffect, useState, FormEvent } from "react";
+import { useEffect, useState, FormEvent, ChangeEvent } from "react";
 import Link from "next/link";
 import { useAuth, isSupabaseConfigured } from "../auth/AuthContext";
 import { createClient } from "../../lib/supabase/client";
 import { useLanguage } from "../i18n/LanguageContext";
 
 type SaveStatus = "idle" | "saving" | "saved" | "error";
+
+const AVATAR_TYPES = ["image/jpeg", "image/png", "image/webp"];
+const MAX_AVATAR_BYTES = 5 * 1024 * 1024; // 5MB
 
 export default function ProfilePage() {
   const { t } = useLanguage();
@@ -16,6 +19,10 @@ export default function ProfilePage() {
   const [nameStatus, setNameStatus] = useState<SaveStatus>("idle");
   const [nameError, setNameError] = useState<string | null>(null);
 
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [avatarStatus, setAvatarStatus] = useState<SaveStatus>("idle");
+  const [avatarError, setAvatarError] = useState<string | null>(null);
+
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [passStatus, setPassStatus] = useState<SaveStatus>("idle");
@@ -24,8 +31,61 @@ export default function ProfilePage() {
   useEffect(() => {
     if (user) {
       setDisplayName((user.user_metadata?.full_name as string | undefined) ?? "");
+      setAvatarUrl((user.user_metadata?.avatar_url as string | undefined) ?? null);
     }
   }, [user]);
+
+  async function handleAvatarChange(e: ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file || !user) return;
+
+    setAvatarError(null);
+
+    if (!AVATAR_TYPES.includes(file.type)) {
+      setAvatarError(t.auth.avatarTypeError);
+      setAvatarStatus("error");
+      return;
+    }
+    if (file.size > MAX_AVATAR_BYTES) {
+      setAvatarError(t.auth.avatarSizeError);
+      setAvatarStatus("error");
+      return;
+    }
+
+    setAvatarStatus("saving");
+    const supabase = createClient();
+    const ext = file.name.split(".").pop() || "jpg";
+    const path = `${user.id}/avatar.${ext}`;
+
+    const { error: uploadError } = await supabase.storage
+      .from("avatars")
+      .upload(path, file, { upsert: true, cacheControl: "3600" });
+
+    if (uploadError) {
+      setAvatarError(uploadError.message);
+      setAvatarStatus("error");
+      return;
+    }
+
+    const { data } = supabase.storage.from("avatars").getPublicUrl(path);
+    // Cache-bust so the browser (and other people viewing the avatar)
+    // fetch the new image instead of a stale cached one at the same URL.
+    const publicUrl = `${data.publicUrl}?t=${Date.now()}`;
+
+    const { error: updateError } = await supabase.auth.updateUser({
+      data: { avatar_url: publicUrl },
+    });
+
+    if (updateError) {
+      setAvatarError(updateError.message);
+      setAvatarStatus("error");
+      return;
+    }
+
+    setAvatarUrl(publicUrl);
+    setAvatarStatus("saved");
+  }
 
   async function handleSaveName(e: FormEvent) {
     e.preventDefault();
@@ -105,6 +165,43 @@ export default function ProfilePage() {
 
         {user && (
           <div className="mt-10 space-y-6">
+
+            <div className="rounded-3xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-gray-900">
+              <p className="text-sm text-gray-500 dark:text-gray-400">{t.auth.avatarLabel}</p>
+              <div className="mt-3 flex items-center gap-4">
+                <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-full bg-gray-200 dark:bg-gray-800">
+                  {avatarUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={avatarUrl} alt="" className="h-full w-full object-cover" />
+                  ) : (
+                    <div className="grid h-full w-full place-items-center text-2xl font-semibold text-gray-500 dark:text-gray-400">
+                      {(displayName || user.email || "?").trim().charAt(0).toUpperCase()}
+                    </div>
+                  )}
+                </div>
+                <div>
+                  <label
+                    htmlFor="avatar-upload"
+                    className="inline-block cursor-pointer rounded-full border border-gray-300 px-4 py-2 text-sm font-semibold transition hover:bg-gray-100 dark:border-gray-700 dark:hover:bg-gray-800"
+                  >
+                    {avatarStatus === "saving" ? t.auth.submitting : t.auth.avatarChoose}
+                  </label>
+                  <input
+                    id="avatar-upload"
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp"
+                    onChange={handleAvatarChange}
+                    className="hidden"
+                  />
+                  {avatarError && (
+                    <p className="mt-2 text-sm text-red-600 dark:text-red-400">{avatarError}</p>
+                  )}
+                  {avatarStatus === "saved" && (
+                    <p className="mt-2 text-sm text-green-600 dark:text-green-400">{t.auth.saved}</p>
+                  )}
+                </div>
+              </div>
+            </div>
 
             <div className="rounded-3xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-gray-900">
               <p className="text-sm text-gray-500 dark:text-gray-400">{t.auth.emailLabel}</p>

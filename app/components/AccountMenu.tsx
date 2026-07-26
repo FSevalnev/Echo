@@ -43,6 +43,7 @@ export default function AccountMenu() {
   }
 
   const displayName = (user.user_metadata?.full_name as string | undefined) || user.email || "?";
+  const avatarUrl = user.user_metadata?.avatar_url as string | undefined;
   const initial = displayName.trim().charAt(0).toUpperCase() || "?";
 
   return (
@@ -53,9 +54,14 @@ export default function AccountMenu() {
         aria-label={t.auth.profile}
         aria-expanded={open}
         title={user.email ?? undefined}
-        className="grid h-10 w-10 place-items-center rounded-full bg-black text-sm font-semibold text-white transition hover:scale-105 dark:bg-white dark:text-black"
+        className="grid h-10 w-10 place-items-center overflow-hidden rounded-full bg-black text-sm font-semibold text-white transition hover:scale-105 dark:bg-white dark:text-black"
       >
-        {initial}
+        {avatarUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={avatarUrl} alt="" className="h-full w-full object-cover" />
+        ) : (
+          initial
+        )}
       </button>
 
       {open && (
