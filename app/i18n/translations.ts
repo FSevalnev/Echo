@@ -139,6 +139,8 @@ export type Dictionary = {
     avatarChoose: string;
     avatarTypeError: string;
     avatarSizeError: string;
+    showPassword: string;
+    hidePassword: string;
   };
   history: {
     title: string;
@@ -439,6 +441,8 @@ export const translations: Record<Lang, Dictionary> = {
       avatarChoose: "Change photo",
       avatarTypeError: "Please upload a JPG, PNG, or WEBP image.",
       avatarSizeError: "That image is too large. Please keep it under 5MB.",
+      showPassword: "Show password",
+      hidePassword: "Hide password",
     },
     history: {
       title: "Your Progress",
@@ -737,6 +741,8 @@ export const translations: Record<Lang, Dictionary> = {
       avatarChoose: "Изменить фото",
       avatarTypeError: "Загрузи изображение JPG, PNG или WEBP.",
       avatarSizeError: "Файл слишком большой. Держи его меньше 5МБ.",
+      showPassword: "Показать пароль",
+      hidePassword: "Скрыть пароль",
     },
     history: {
       title: "Твой прогресс",
@@ -1036,6 +1042,8 @@ export const translations: Record<Lang, Dictionary> = {
       avatarChoose: "Иваз кардани акс",
       avatarTypeError: "Лутфан тасвири JPG, PNG ё WEBP бор кунед.",
       avatarSizeError: "Файл хеле калон аст. Онро то 5МБ нигоҳ доред.",
+      showPassword: "Намоиш додани парол",
+      hidePassword: "Пинҳон кардани парол",
     },
     history: {
       title: "Пешрафти шумо",

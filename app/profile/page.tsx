@@ -5,11 +5,51 @@ import Link from "next/link";
 import { useAuth, isSupabaseConfigured } from "../auth/AuthContext";
 import { createClient } from "../../lib/supabase/client";
 import { useLanguage } from "../i18n/LanguageContext";
+import type { Dictionary } from "../i18n/translations";
 
 type SaveStatus = "idle" | "saving" | "saved" | "error";
 
 const AVATAR_TYPES = ["image/jpeg", "image/png", "image/webp"];
 const MAX_AVATAR_BYTES = 5 * 1024 * 1024; // 5MB
+
+// Minimal, dependency-free eye / eye-off icons so the show/hide toggle
+// matches the site's plain-SVG visual language (same approach as the
+// history page's charts) instead of pulling in an icon library.
+function EyeIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5">
+      <path d="M1.5 12S5 5 12 5s10.5 7 10.5 7-3.5 7-10.5 7S1.5 12 1.5 12Z" />
+      <circle cx="12" cy="12" r="3" />
+    </svg>
+  );
+}
+
+function EyeOffIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5">
+      <path d="M3 3l18 18" />
+      <path d="M10.6 10.6a3 3 0 0 0 4.24 4.24" />
+      <path d="M9.9 5.1A10.94 10.94 0 0 1 12 5c7 0 10.5 7 10.5 7a13.16 13.16 0 0 1-4.24 4.9M6.5 6.9C3.7 8.6 1.5 12 1.5 12a13.2 13.2 0 0 0 5.06 5.94" />
+    </svg>
+  );
+}
+
+function PasswordToggleButton({ shown, onToggle, t }: { shown: boolean; onToggle: () => void; t: Dictionary }) {
+  return (
+    <button
+      type="button"
+      // tabIndex -1 so tabbing through the form goes field-to-field, not
+      // into the toggle button — keeps focus flow predictable.
+      tabIndex={-1}
+      onClick={onToggle}
+      aria-label={shown ? t.auth.hidePassword : t.auth.showPassword}
+      title={shown ? t.auth.hidePassword : t.auth.showPassword}
+      className="absolute inset-y-0 right-0 flex items-center px-3 text-gray-400 transition hover:text-gray-600 active:scale-90 dark:text-gray-500 dark:hover:text-gray-300"
+    >
+      {shown ? <EyeOffIcon /> : <EyeIcon />}
+    </button>
+  );
+}
 
 export default function ProfilePage() {
   const { t } = useLanguage();
@@ -27,6 +67,8 @@ export default function ProfilePage() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [passStatus, setPassStatus] = useState<SaveStatus>("idle");
   const [passError, setPassError] = useState<string | null>(null);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -241,28 +283,34 @@ export default function ProfilePage() {
               className="rounded-3xl border border-gray-200 bg-white p-6 space-y-4 dark:border-gray-800 dark:bg-gray-900"
             >
               <h2 className="font-semibold">{t.auth.newPasswordLabel}</h2>
-              <input
-                type="password"
-                value={newPassword}
-                onChange={(e) => {
-                  setNewPassword(e.target.value);
-                  setPassStatus("idle");
-                }}
-                placeholder={t.auth.newPasswordLabel}
-                minLength={6}
-                className="w-full rounded-xl border border-gray-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-950"
-              />
-              <input
-                type="password"
-                value={confirmPassword}
-                onChange={(e) => {
-                  setConfirmPassword(e.target.value);
-                  setPassStatus("idle");
-                }}
-                placeholder={t.auth.confirmPasswordLabel}
-                minLength={6}
-                className="w-full rounded-xl border border-gray-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-950"
-              />
+              <div className="relative">
+                <input
+                  type={showNewPassword ? "text" : "password"}
+                  value={newPassword}
+                  onChange={(e) => {
+                    setNewPassword(e.target.value);
+                    setPassStatus("idle");
+                  }}
+                  placeholder={t.auth.newPasswordLabel}
+                  minLength={6}
+                  className="w-full rounded-xl border border-gray-300 px-4 py-3 pr-11 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-950"
+                />
+                <PasswordToggleButton shown={showNewPassword} onToggle={() => setShowNewPassword((s) => !s)} t={t} />
+              </div>
+              <div className="relative">
+                <input
+                  type={showConfirmPassword ? "text" : "password"}
+                  value={confirmPassword}
+                  onChange={(e) => {
+                    setConfirmPassword(e.target.value);
+                    setPassStatus("idle");
+                  }}
+                  placeholder={t.auth.confirmPasswordLabel}
+                  minLength={6}
+                  className="w-full rounded-xl border border-gray-300 px-4 py-3 pr-11 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-950"
+                />
+                <PasswordToggleButton shown={showConfirmPassword} onToggle={() => setShowConfirmPassword((s) => !s)} t={t} />
+              </div>
               {passError && <p className="text-sm text-red-600 dark:text-red-400">{passError}</p>}
               {passStatus === "saved" && (
                 <p className="text-sm text-green-600 dark:text-green-400">{t.auth.saved}</p>
