@@ -243,3 +243,44 @@ drop policy if exists "update own answer" on public.room_answers;
 create policy "update own answer"
   on public.room_answers for update
   using (auth.uid() = user_id);
+
+-- Public testimonials wall on the landing page: any signed-in user can
+-- post one review about Echo (a nickname snapshot + 1-5 star rating +
+-- short text). Shown to EVERY visitor, including signed-out guests, so
+-- the select policy is intentionally public ("using (true)") rather than
+-- restricted to authenticated users. Re-submitting updates your existing
+-- review instead of creating a duplicate (upsert keyed on user_id).
+create table if not exists public.reviews (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users (id) on delete cascade,
+  display_name text not null,
+  rating int not null check (rating between 1 and 5),
+  body text not null check (char_length(body) between 1 and 500),
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  unique (user_id)
+);
+
+create index if not exists reviews_created_at_idx on public.reviews (created_at desc);
+
+alter table public.reviews enable row level security;
+
+drop policy if exists "select reviews" on public.reviews;
+create policy "select reviews"
+  on public.reviews for select
+  using (true);
+
+drop policy if exists "insert own review" on public.reviews;
+create policy "insert own review"
+  on public.reviews for insert
+  with check (auth.uid() = user_id);
+
+drop policy if exists "update own review" on public.reviews;
+create policy "update own review"
+  on public.reviews for update
+  using (auth.uid() = user_id);
+
+drop policy if exists "delete own review" on public.reviews;
+create policy "delete own review"
+  on public.reviews for delete
+  using (auth.uid() = user_id);

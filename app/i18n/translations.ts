@@ -213,6 +213,20 @@ export type Dictionary = {
     leaveRoom: string;
     hostOnlyHint: string;
   };
+  reviews: {
+    leaveReviewTitle: string;
+    ratingLabel: string;
+    textPlaceholder: string;
+    submit: string;
+    submitting: string;
+    posted: string;
+    editHint: string;
+    signInPrompt: string;
+    notConfigured: string;
+    textError: string;
+    genericError: string;
+    empty: string;
+  };
 };
 
 export const translations: Record<Lang, Dictionary> = {
@@ -465,6 +479,20 @@ export const translations: Record<Lang, Dictionary> = {
       leaveRoom: "Leave room",
       hostOnlyHint: "Only the host can do this.",
     },
+    reviews: {
+      leaveReviewTitle: "Leave a review",
+      ratingLabel: "Your rating",
+      textPlaceholder: "What's your experience with Echo been like?",
+      submit: "Post review",
+      submitting: "Posting...",
+      posted: "Thanks for your review!",
+      editHint: "You've already reviewed Echo — posting again will update it.",
+      signInPrompt: "Sign in to leave a review.",
+      notConfigured: "Accounts aren't set up for this deployment yet, so reviews aren't available.",
+      textError: "Write a few words about your experience.",
+      genericError: "Something went wrong. Try again.",
+      empty: "No reviews yet — be the first!",
+    },
   },
 
   ru: {
@@ -714,6 +742,20 @@ export const translations: Record<Lang, Dictionary> = {
       backHome: "← Назад в Echo",
       leaveRoom: "Покинуть комнату",
       hostOnlyHint: "Это может сделать только хост.",
+    },
+    reviews: {
+      leaveReviewTitle: "Оставить отзыв",
+      ratingLabel: "Твоя оценка",
+      textPlaceholder: "Как тебе Echo? Поделись впечатлением.",
+      submit: "Опубликовать",
+      submitting: "Публикую...",
+      posted: "Спасибо за отзыв!",
+      editHint: "Ты уже оставлял отзыв — повторная публикация обновит его.",
+      signInPrompt: "Войди, чтобы оставить отзыв.",
+      notConfigured: "Аккаунты пока не настроены для этого деплоя, поэтому отзывы недоступны.",
+      textError: "Напиши пару слов о своём опыте.",
+      genericError: "Что-то пошло не так. Попробуй ещё раз.",
+      empty: "Пока нет отзывов — стань первым!",
     },
   },
 
@@ -965,6 +1007,20 @@ export const translations: Record<Lang, Dictionary> = {
       backHome: "← Бозгашт ба Echo",
       leaveRoom: "Утоқро тарк кунед",
       hostOnlyHint: "Инро танҳо хост карда метавонад.",
+    },
+    reviews: {
+      leaveReviewTitle: "Тақриз гузоштан",
+      ratingLabel: "Баҳои шумо",
+      textPlaceholder: "Таассуроти шумо аз Echo чӣ гуна аст?",
+      submit: "Нашр кардан",
+      submitting: "Нашр шуда истодааст...",
+      posted: "Ташаккур барои тақриз!",
+      editHint: "Шумо аллакай тақриз гузоштаед — нашри такрорӣ онро навсозӣ мекунад.",
+      signInPrompt: "Барои гузоштани тақриз ворид шавед.",
+      notConfigured: "Ҳисобҳо барои ин деплой ҳанӯз танзим нашудаанд, бинобар ин тақризҳо дастрас нестанд.",
+      textError: "Дар бораи таассуроти худ чанд калима нависед.",
+      genericError: "Хатое рух дод. Дубора кӯшиш кунед.",
+      empty: "Ҳанӯз тақризе нест — аввалин шавед!",
     },
   },
 };

@@ -1,97 +1,229 @@
 "use client";
 
-// Testimonials wall — a self-contained social-proof section for the very
-// end of the landing page (right before the footer). Deliberately has no
-// title/subtitle/avatars/badges per spec: just an infinite two-row
-// marquee of name + 5-star rating + short quote cards.
+// Real testimonials wall — signed-in users leave a rating + short text,
+// stored in Supabase (`reviews` table), and it's shown here at the very
+// end of the landing page as an infinite two-row marquee (top row left,
+// bottom row right). Replaces the earlier hardcoded placeholder copy.
 //
 // The scroll animation is pure CSS (two @keyframes + two classes below),
-// not JS/state — that's what keeps it GPU-accelerated and buttery at 60fps,
-// and lets "pause on hover, resume smoothly" fall out for free from the
-// browser's native animation-play-state behavior (a paused CSS animation
-// resumes from exactly where it left off, no jump).
+// not JS/state — that's what keeps it GPU-accelerated and buttery at
+// 60fps, and lets "pause on hover, resume smoothly" fall out for free
+// from the browser's native animation-play-state behavior (a paused CSS
+// animation resumes from exactly where it left off, no jump).
 
-type Testimonial = {
-  name: string;
-  text: string;
-};
+import { useEffect, useState, FormEvent } from "react";
+import Link from "next/link";
+import { useAuth, isSupabaseConfigured } from "../auth/AuthContext";
+import { createClient } from "../../lib/supabase/client";
+import { useLanguage } from "../i18n/LanguageContext";
+import type { Review } from "../../lib/reviews";
 
-const ROW_1: Testimonial[] = [
-  { name: "Emily Carter", text: "Echo completely changed the way I study. Instead of memorizing information, I finally understand it." },
-  { name: "Sophia Bennett", text: "I used to cram before every exam. Now I explain concepts out loud and actually retain them." },
-  { name: "Olivia Nguyen", text: "My exam prep used to be pure panic. With Echo I walk in knowing exactly what I actually understand." },
-  { name: "Grace Kim", text: "Studying finally feels less like memorizing and more like actually learning something." },
-  { name: "Ava Mitchell", text: "The personalized feedback feels like it was written for me specifically, not some generic template." },
-  { name: "Isabella Reed", text: "Echo found gaps in my calculus understanding that three tutors missed." },
-  { name: "Chloe Whitfield", text: "It's oddly satisfying watching my understanding score climb every week." },
-  { name: "Mia Alvarez", text: "I finally stopped confusing 'I recognize this' with 'I understand this.'" },
-  { name: "Harper Sinclair", text: "I feel so much more confident walking into exams now that I actually know where I stand." },
-  { name: "Amelia Doyle", text: "Echo doesn't just check if my answer sounds right — it catches when my reasoning is shaky underneath." },
-  { name: "Zoe Callahan", text: "Studying with Echo is genuinely the first time revision hasn't felt like a chore." },
-  { name: "Natalie Osei", text: "I explained mitochondria to my little brother the same way I explain it to Echo now. Both understood me." },
-  { name: "Ella Marchetti", text: "Echo caught that I was memorizing formulas without understanding what they actually meant. Huge wake-up call." },
-  { name: "Sarah Lindqvist", text: "Every explanation gets specific feedback — no generic 'good job' filler." },
-  { name: "Ruby Anderson", text: "Uploading a photo of my messy notes and getting instant feedback on them saved me so much time." },
-  { name: "Vivian Choi", text: "The recommendations after each attempt actually target my specific weak spots, not generic study tips." },
-  { name: "Hannah Whitaker", text: "I used to just hope I understood the material. Now I actually know." },
-  { name: "Aria Fontaine", text: "Ten minutes explaining a topic out loud teaches me more than an hour of rereading ever did." },
-];
+const STAR_VALUES = [1, 2, 3, 4, 5];
 
-const ROW_2: Testimonial[] = [
-  { name: "Daniel Reyes", text: "The AI feedback is scary accurate. It pointed out a gap in my understanding I didn't even know I had." },
-  { name: "Marcus Turner", text: "Explaining a topic out loud forces you to notice exactly where your logic breaks down. Echo catches every one of those moments." },
-  { name: "Ethan Walsh", text: "I've tried a dozen study apps. This is the first one that tells me what I got wrong and why, not just a score." },
-  { name: "Liam Foster", text: "I explain a topic, Echo tells me the exact concept I skipped. It's like having a tutor who never gets tired." },
-  { name: "Noah Bianchi", text: "I learned more explaining photosynthesis out loud for five minutes than an hour of rereading my notes." },
-  { name: "Jacob Sorensen", text: "I'm not a confident public speaker, but explaining to Echo made me way more comfortable talking through ideas." },
-  { name: "Ryan Delgado", text: "Ten minutes with Echo before a test beats an hour of passive rereading." },
-  { name: "Benjamin Cross", text: "The follow-up questions are the best part — they push you to fill the gap yourself instead of handing you the answer." },
-  { name: "Lucas Hartman", text: "Explaining things out loud used to feel pointless. Now it's basically my main study method." },
-  { name: "Tyler Brooks", text: "I used to over-study everything equally. Now I know exactly which topics actually need more work." },
-  { name: "Nathan Pierce", text: "The gap between 'I read the chapter' and 'I understand the chapter' used to be invisible to me. Not anymore." },
-  { name: "Caleb Whitmore", text: "It's like the Feynman technique but with an AI checking your reasoning in real time." },
-  { name: "Owen Fitzgerald", text: "Voice mode is perfect for me — I talk through the topic on my walk to class and get feedback minutes later." },
-  { name: "Dominic Reeves", text: "I stopped dreading exam week once I started using Echo two weeks out instead of two days out." },
-  { name: "Adrian Voss", text: "I learn faster now because I know immediately what to fix instead of waiting for a graded test to find out." },
-  { name: "Elijah Marsh", text: "Echo made me realize half of what I thought I 'knew' was actually just familiar-sounding vocabulary." },
-  { name: "Julian Ferreira", text: "Explaining a concept badly the first time, then well the second time — that's when it actually clicks." },
-  { name: "Connor Blackwood", text: "Best study habit I've picked up in years, and it barely takes ten minutes a day." },
-];
+function splitRows(reviews: Review[]): [Review[], Review[]] {
+  const row1: Review[] = [];
+  const row2: Review[] = [];
+  reviews.forEach((r, i) => (i % 2 === 0 ? row1 : row2).push(r));
+  return [row1, row2];
+}
 
-function Card({ name, text }: Testimonial) {
+function Card({ display_name, rating, body }: Review) {
   return (
-    <div
-      className="w-[260px] shrink-0 rounded-3xl border border-white/10 bg-white/[0.06] p-6 shadow-[0_0_40px_-14px_rgba(99,102,241,0.4)] backdrop-blur-md transition-all duration-300 hover:-translate-y-1.5 hover:border-white/25 hover:shadow-[0_0_60px_-10px_rgba(129,140,248,0.6)] sm:w-[290px] md:w-[310px]"
-    >
-      <p className="font-semibold text-white">{name}</p>
-      <p className="mt-1 text-sm tracking-wide text-yellow-400" aria-label="5 out of 5 stars">
-        ⭐⭐⭐⭐⭐
+    <div className="w-[260px] shrink-0 rounded-3xl border border-white/10 bg-white/[0.06] p-6 shadow-[0_0_40px_-14px_rgba(99,102,241,0.4)] backdrop-blur-md transition-all duration-300 hover:-translate-y-1.5 hover:border-white/25 hover:shadow-[0_0_60px_-10px_rgba(129,140,248,0.6)] sm:w-[290px] md:w-[310px]">
+      <p className="font-semibold text-white">{display_name}</p>
+      <p className="mt-1 text-sm tracking-wide text-yellow-400" aria-label={`${rating} out of 5 stars`}>
+        {"⭐".repeat(Math.max(1, Math.min(5, rating)))}
       </p>
-      <p className="mt-3 text-sm leading-relaxed text-gray-300">&ldquo;{text}&rdquo;</p>
+      <p className="mt-3 text-sm leading-relaxed text-gray-300">&ldquo;{body}&rdquo;</p>
     </div>
   );
 }
 
 export default function Testimonials() {
+  const { t } = useLanguage();
+  const { user, loading: authLoading } = useAuth();
+
+  const [reviews, setReviews] = useState<Review[]>([]);
+  const [loadingReviews, setLoadingReviews] = useState(true);
+
+  const [rating, setRating] = useState(5);
+  const [hoverRating, setHoverRating] = useState(0);
+  const [body, setBody] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
+  const [posted, setPosted] = useState(false);
+
+  const myReview = reviews.find((r) => r.user_id === user?.id) ?? null;
+
+  async function loadReviews() {
+    const supabase = createClient();
+    const { data } = await supabase
+      .from("reviews")
+      .select("*")
+      .order("created_at", { ascending: false })
+      .limit(80);
+    setReviews((data as Review[]) ?? []);
+    setLoadingReviews(false);
+  }
+
+  useEffect(() => {
+    if (!isSupabaseConfigured) {
+      setLoadingReviews(false);
+      return;
+    }
+    loadReviews();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Pre-fill the form with the user's existing review, if they have one,
+  // so re-opening the form to edit doesn't start from a blank slate.
+  useEffect(() => {
+    if (myReview) {
+      setRating(myReview.rating);
+      setBody(myReview.body);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [myReview?.id]);
+
+  async function handleSubmit(e: FormEvent) {
+    e.preventDefault();
+    if (!user) return;
+
+    if (!body.trim()) {
+      setFormError(t.reviews.textError);
+      return;
+    }
+
+    setSubmitting(true);
+    setFormError(null);
+    setPosted(false);
+
+    const supabase = createClient();
+    const displayName =
+      (user.user_metadata?.full_name as string | undefined)?.trim() || user.email || "Echo user";
+
+    const { error } = await supabase.from("reviews").upsert(
+      {
+        user_id: user.id,
+        display_name: displayName,
+        rating,
+        body: body.trim(),
+        updated_at: new Date().toISOString(),
+      },
+      { onConflict: "user_id" }
+    );
+
+    if (error) {
+      setFormError(t.reviews.genericError);
+      setSubmitting(false);
+      return;
+    }
+
+    setPosted(true);
+    setSubmitting(false);
+    await loadReviews();
+  }
+
+  if (!isSupabaseConfigured) return null;
+
+  const [row1, row2] = splitRows(reviews);
+  const displayRating = hoverRating || rating;
+
   return (
     <section className="relative overflow-hidden bg-gradient-to-b from-gray-950 to-black py-20">
-      <div className="space-y-6">
-        <div className="overflow-hidden">
-          <div className="marquee-left flex w-max gap-6 will-change-transform">
-            {[...ROW_1, ...ROW_1].map((item, i) => (
-              <Card key={`r1-${i}`} {...item} />
-            ))}
-          </div>
-        </div>
+      <div className="mx-auto mb-14 max-w-lg px-6">
+        <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-6 backdrop-blur-md">
+          <h3 className="text-lg font-semibold text-white">{t.reviews.leaveReviewTitle}</h3>
 
-        <div className="overflow-hidden">
-          <div className="marquee-right flex w-max gap-6 will-change-transform">
-            {[...ROW_2, ...ROW_2].map((item, i) => (
-              <Card key={`r2-${i}`} {...item} />
-            ))}
-          </div>
+          {!authLoading && !user && (
+            <div className="mt-4 text-center">
+              <p className="text-sm text-gray-400">{t.reviews.signInPrompt}</p>
+              <Link
+                href="/login"
+                className="mt-3 inline-block rounded-full bg-white px-5 py-2 text-sm font-semibold text-black transition hover:scale-105"
+              >
+                {t.auth.signInTitle}
+              </Link>
+            </div>
+          )}
+
+          {user && (
+            <form onSubmit={handleSubmit} className="mt-4 space-y-3">
+              <div>
+                <label className="text-xs text-gray-400">{t.reviews.ratingLabel}</label>
+                <div className="mt-1 flex gap-1 text-2xl">
+                  {STAR_VALUES.map((n) => (
+                    <button
+                      key={n}
+                      type="button"
+                      onClick={() => setRating(n)}
+                      onMouseEnter={() => setHoverRating(n)}
+                      onMouseLeave={() => setHoverRating(0)}
+                      aria-label={`${n} star${n > 1 ? "s" : ""}`}
+                      className="leading-none"
+                    >
+                      <span className={displayRating >= n ? "text-yellow-400" : "text-gray-600"}>★</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <textarea
+                value={body}
+                onChange={(e) => {
+                  setBody(e.target.value);
+                  setFormError(null);
+                  setPosted(false);
+                }}
+                placeholder={t.reviews.textPlaceholder}
+                rows={3}
+                maxLength={500}
+                className="w-full rounded-xl border border-white/10 bg-black/30 px-4 py-3 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+
+              {formError && <p className="text-sm text-red-400">{formError}</p>}
+              {posted && <p className="text-sm text-green-400">{t.reviews.posted}</p>}
+              {myReview && !posted && !formError && (
+                <p className="text-xs text-gray-500">{t.reviews.editHint}</p>
+              )}
+
+              <button
+                type="submit"
+                disabled={submitting}
+                className="w-full rounded-full bg-white px-6 py-2.5 text-sm font-semibold text-black transition hover:scale-105 disabled:opacity-50"
+              >
+                {submitting ? t.reviews.submitting : t.reviews.submit}
+              </button>
+            </form>
+          )}
         </div>
       </div>
+
+      {!loadingReviews && reviews.length === 0 && (
+        <p className="text-center text-sm text-gray-500">{t.reviews.empty}</p>
+      )}
+
+      {reviews.length > 0 && (
+        <div className="space-y-6">
+          <div className="overflow-hidden">
+            <div className="marquee-left flex w-max gap-6 will-change-transform">
+              {[...row1, ...row1].map((item, i) => (
+                <Card key={`r1-${item.id}-${i}`} {...item} />
+              ))}
+            </div>
+          </div>
+
+          {row2.length > 0 && (
+            <div className="overflow-hidden">
+              <div className="marquee-right flex w-max gap-6 will-change-transform">
+                {[...row2, ...row2].map((item, i) => (
+                  <Card key={`r2-${item.id}-${i}`} {...item} />
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
 
       <style jsx global>{`
         @keyframes marquee-left {
