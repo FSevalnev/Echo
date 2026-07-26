@@ -208,27 +208,26 @@ export default function RoomsPage() {
 
               <div>
                 <label className="text-sm text-gray-500 dark:text-gray-400">{t.rooms.topicLabel}</label>
-                <div className="mt-1 flex gap-2">
-                  <input
-                    type="text"
-                    value={topic}
-                    onChange={(e) => {
-                      setTopic(e.target.value);
-                      setTopicError(null);
-                    }}
-                    placeholder={t.rooms.topicPlaceholder}
-                    className="w-full rounded-xl border border-gray-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-950"
-                  />
-                  <button
-                    type="button"
-                    onClick={handleRandomTopic}
-                    disabled={!subject.trim() || topicLoading}
-                    title={!subject.trim() ? t.rooms.subjectLabel : undefined}
-                    className="shrink-0 whitespace-nowrap rounded-xl border border-gray-300 px-3 py-3 text-sm font-semibold transition hover:bg-gray-100 disabled:opacity-50 dark:border-gray-700 dark:hover:bg-gray-800"
-                  >
-                    {topicLoading ? t.rooms.randomTopicLoading : t.rooms.randomTopic}
-                  </button>
-                </div>
+                <input
+                  type="text"
+                  value={topic}
+                  onChange={(e) => {
+                    setTopic(e.target.value);
+                    setTopicError(null);
+                  }}
+                  placeholder={t.rooms.topicPlaceholder}
+                  title={topic}
+                  className="mt-1 w-full rounded-xl border border-gray-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-950"
+                />
+                <button
+                  type="button"
+                  onClick={handleRandomTopic}
+                  disabled={!subject.trim() || topicLoading}
+                  title={!subject.trim() ? t.rooms.subjectLabel : undefined}
+                  className="mt-2 w-full whitespace-nowrap rounded-xl border border-gray-300 px-3 py-2.5 text-sm font-semibold transition hover:bg-gray-100 disabled:opacity-50 dark:border-gray-700 dark:hover:bg-gray-800"
+                >
+                  {topicLoading ? t.rooms.randomTopicLoading : t.rooms.randomTopic}
+                </button>
                 {topicError && <p className="mt-1 text-sm text-red-600 dark:text-red-400">{topicError}</p>}
               </div>
 
