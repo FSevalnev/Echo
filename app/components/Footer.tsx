@@ -16,7 +16,7 @@ export default function Footer() {
         <div className="flex flex-col md:flex-row items-center justify-between gap-6">
 
           <div className="flex items-center gap-3">
-            <div className="relative h-10 w-10 shrink-0">
+            <div className="relative h-12 w-12 shrink-0">
               <Image src="/brand/echo-logo.png" alt="Echo" fill className="object-contain" />
             </div>
             <span className="text-xl font-bold tracking-tight text-white">
@@ -56,7 +56,7 @@ export default function Footer() {
 
           <div className="flex items-center gap-2">
             <span>Built by</span>
-            <div className="relative h-5 w-5 shrink-0">
+            <div className="relative h-6 w-6 shrink-0">
               <Image src="/brand/brainexe-logo.png" alt="Brain.exe" fill className="object-contain" />
             </div>
             <span className="font-semibold text-gray-300">Brain.exe</span>

@@ -21,7 +21,7 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto flex items-center justify-between px-4 sm:px-8 h-20">
 
         <a href="#top" aria-label="Echo — home" onClick={() => setMobileOpen(false)}>
-          <span className="relative inline-block h-12 w-12">
+          <span className="relative inline-block h-14 w-14">
             {/* Wordmark is baked into the logo art, so no separate text
                 label is needed here — just swap for theme contrast. */}
             <Image

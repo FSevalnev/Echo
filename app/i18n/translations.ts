@@ -123,6 +123,15 @@ export type Dictionary = {
     notConfigured: string;
     signOut: string;
     history: string;
+    profile: string;
+    displayNameLabel: string;
+    displayNamePlaceholder: string;
+    saveChanges: string;
+    saved: string;
+    newPasswordLabel: string;
+    confirmPasswordLabel: string;
+    passwordMismatch: string;
+    passwordTooShort: string;
   };
   history: {
     title: string;
@@ -298,6 +307,15 @@ export const translations: Record<Lang, Dictionary> = {
         "Accounts aren't set up for this deployment yet — you can still use Echo as a guest.",
       signOut: "Sign Out",
       history: "History",
+      profile: "Profile",
+      displayNameLabel: "Display name",
+      displayNamePlaceholder: "How should we call you?",
+      saveChanges: "Save changes",
+      saved: "Saved.",
+      newPasswordLabel: "New password",
+      confirmPasswordLabel: "Confirm new password",
+      passwordMismatch: "Passwords don't match.",
+      passwordTooShort: "Password must be at least 6 characters.",
     },
     history: {
       title: "Your Progress",
@@ -471,6 +489,15 @@ export const translations: Record<Lang, Dictionary> = {
         "Аккаунты пока не настроены для этого деплоя — можно пользоваться Echo как гость.",
       signOut: "Выйти",
       history: "История",
+      profile: "Профиль",
+      displayNameLabel: "Отображаемое имя",
+      displayNamePlaceholder: "Как тебя называть?",
+      saveChanges: "Сохранить",
+      saved: "Сохранено.",
+      newPasswordLabel: "Новый пароль",
+      confirmPasswordLabel: "Повтори новый пароль",
+      passwordMismatch: "Пароли не совпадают.",
+      passwordTooShort: "Пароль должен быть не короче 6 символов.",
     },
     history: {
       title: "Твой прогресс",
@@ -645,6 +672,15 @@ export const translations: Record<Lang, Dictionary> = {
         "Ҳисобҳо барои ин деплой ҳанӯз танзим нашудаанд — шумо метавонед Echo-ро ҳамчун меҳмон истифода баред.",
       signOut: "Баромадан",
       history: "Таърих",
+      profile: "Профил",
+      displayNameLabel: "Номи намоишӣ",
+      displayNamePlaceholder: "Шуморо чӣ тавр номем?",
+      saveChanges: "Нигоҳ доштан",
+      saved: "Нигоҳ дошта шуд.",
+      newPasswordLabel: "Пароли нав",
+      confirmPasswordLabel: "Пароли нави худро такрор кунед",
+      passwordMismatch: "Паролҳо мувофиқат намекунанд.",
+      passwordTooShort: "Парол бояд ҳадди ақал аз 6 аломат иборат бошад.",
     },
     history: {
       title: "Пешрафти шумо",
