@@ -53,6 +53,8 @@ export type Dictionary = {
     levelSchoolchild: string;
     levelStudent: string;
     levelProfessional: string;
+    gradeLabel: string;
+    gradeOption: string;
     submit: string;
     submitting: string;
     recordStart: string;
@@ -164,6 +166,7 @@ export type Dictionary = {
     randomTopicLoading: string;
     randomTopicError: string;
     levelLabel: string;
+    gradeLabel: string;
     roundsLabel: string;
     secondsLabel: string;
     createSubmit: string;
@@ -300,6 +303,8 @@ export const translations: Record<Lang, Dictionary> = {
       levelSchoolchild: "Schoolchild (school curriculum)",
       levelStudent: "University student",
       levelProfessional: "Professional",
+      gradeLabel: "Grade",
+      gradeOption: "Grade {n}",
       submit: "Check My Understanding",
       submitting: "Analyzing...",
       recordStart: "Start Recording",
@@ -413,6 +418,7 @@ export const translations: Record<Lang, Dictionary> = {
       randomTopicLoading: "Picking...",
       randomTopicError: "Couldn't generate a topic. Try again or type your own.",
       levelLabel: "Level",
+      gradeLabel: "Grade",
       roundsLabel: "Rounds",
       secondsLabel: "Seconds per round",
       createSubmit: "Create room",
@@ -548,6 +554,8 @@ export const translations: Record<Lang, Dictionary> = {
       levelSchoolchild: "Школьник (школьная программа)",
       levelStudent: "Студент (университет)",
       levelProfessional: "Профессионал",
+      gradeLabel: "Класс",
+      gradeOption: "{n} класс",
       submit: "Проверить понимание",
       submitting: "Анализирую...",
       recordStart: "Начать запись",
@@ -660,6 +668,7 @@ export const translations: Record<Lang, Dictionary> = {
       randomTopicLoading: "Подбираю...",
       randomTopicError: "Не удалось подобрать тему. Попробуй ещё раз или впиши свою.",
       levelLabel: "Уровень",
+      gradeLabel: "Класс",
       roundsLabel: "Раунды",
       secondsLabel: "Секунд на раунд",
       createSubmit: "Создать комнату",
@@ -795,6 +804,8 @@ export const translations: Record<Lang, Dictionary> = {
       levelSchoolchild: "Хонандаи мактаб (барномаи мактабӣ)",
       levelStudent: "Донишҷӯ (донишгоҳ)",
       levelProfessional: "Мутахассис",
+      gradeLabel: "Синф",
+      gradeOption: "Синфи {n}",
       submit: "Фаҳмиши маро санҷед",
       submitting: "Таҳлил шуда истодааст...",
       recordStart: "Сабтро оғоз кунед",
@@ -908,6 +919,7 @@ export const translations: Record<Lang, Dictionary> = {
       randomTopicLoading: "Интихоб шуда истодааст...",
       randomTopicError: "Мавзӯъ интихоб карда нашуд. Дубора кӯшиш кунед ё худатон нависед.",
       levelLabel: "Сатҳ",
+      gradeLabel: "Синф",
       roundsLabel: "Даврҳо",
       secondsLabel: "Сония барои як давр",
       createSubmit: "Утоқ созед",

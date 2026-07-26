@@ -15,6 +15,7 @@ type AnalyzeRequestBody = {
   fileMimeType?: string;
   lang?: "en" | "ru" | "tg";
   level?: Level;
+  grade?: number; // only meaningful when level === "schoolchild"
   previousScores?: number[];
 };
 
@@ -80,19 +81,31 @@ const CAUSE_VALUES: Cause[] = [
   "calculation",
 ];
 
-const LEVEL_INSTRUCTIONS: Record<Level, string> = {
-  schoolchild:
-    "The student self-identifies as a SCHOOLCHILD (K-12 / school level). Judge the explanation against what a SCHOOL curriculum expects at this stage — simple language, foundational concepts, step-by-step correctness. Do not penalize for missing university-level depth, rigor, or advanced terminology that isn't taught in school. Be extra encouraging in tone.",
+function schoolchildInstruction(grade?: number): string {
+  const gradeClause =
+    grade && grade >= 1 && grade <= 11
+      ? ` Specifically, the student is in GRADE ${grade}. Judge strictly against what is taught in grade ${grade} of a standard school curriculum — not an earlier grade's simpler version, and not a later grade's more advanced version. If the explanation relies on concepts not yet taught by grade ${grade}, that's a bonus, not a requirement; if it's missing something that IS covered by grade ${grade}, treat that as a real gap.`
+      : "";
+
+  return `The student self-identifies as a SCHOOLCHILD (K-12 / school level).${gradeClause} Judge the explanation against what a SCHOOL curriculum expects at this stage — simple language, foundational concepts, step-by-step correctness. Do not penalize for missing university-level depth, rigor, or advanced terminology that isn't taught in school. Be extra encouraging in tone.`;
+}
+
+const LEVEL_INSTRUCTIONS: Record<Exclude<Level, "schoolchild">, string> = {
   student:
     "The student self-identifies as a UNIVERSITY STUDENT. Judge the explanation against what a UNIVERSITY-level course expects — correct use of course-level terminology, deeper conceptual understanding, and the ability to connect ideas, but not full professional/research-grade rigor. Point out subtler issues than you would for a schoolchild.",
   professional:
     "The student self-identifies as a PROFESSIONAL — the highest level. Judge the explanation with the full rigor expected of a subject-matter expert: precise technical language, nuance, edge cases, and professional-grade accuracy. Do not go easy on imprecision or hand-waving; treat them as a peer.",
 };
 
+function levelInstruction(level: Level, grade?: number): string {
+  return level === "schoolchild" ? schoolchildInstruction(grade) : LEVEL_INSTRUCTIONS[level];
+}
+
 function buildSystemPrompt(
   languageName: string,
   inputMode: "text" | "audio" | "file",
   level: Level,
+  grade: number | undefined,
   previousScores: number[]
 ): string {
   const transcriptField =
@@ -121,7 +134,7 @@ function buildSystemPrompt(
 
 ${audioNote}${fileNote}Your job is to give a fully individualized, non-generic analysis of ONE student's explanation of ONE topic — never a templated response. Judge based on everything they actually wrote/said: correctness, completeness, logical coherence, accurate use of terms and concepts, and the quality of their reasoning process, not just whether the final "answer" sounds right.
 
-${LEVEL_INSTRUCTIONS[level]}
+${levelInstruction(level, grade)}
 
 ${progressNote}
 
@@ -192,6 +205,10 @@ export async function POST(req: NextRequest) {
   )
     ? (body.level as Level)
     : "student";
+  const grade =
+    typeof body.grade === "number" && Number.isFinite(body.grade)
+      ? Math.round(body.grade)
+      : undefined;
   const previousScores = Array.isArray(body.previousScores)
     ? body.previousScores.filter((n) => typeof n === "number").slice(-5)
     : [];
@@ -277,7 +294,7 @@ export async function POST(req: NextRequest) {
         system_instruction: {
           parts: [
             {
-              text: buildSystemPrompt(languageName, mode, level, previousScores),
+              text: buildSystemPrompt(languageName, mode, level, grade, previousScores),
             },
           ],
         },

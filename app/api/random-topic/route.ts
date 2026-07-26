@@ -7,6 +7,7 @@ type Level = "schoolchild" | "student" | "professional";
 type RandomTopicBody = {
   subject?: string;
   level?: Level;
+  grade?: number; // only meaningful when level === "schoolchild"
   lang?: "en" | "ru" | "tg";
 };
 
@@ -27,6 +28,13 @@ const LEVEL_HINTS: Record<Level, string> = {
   professional: "at a level suitable for a professional/expert audience",
 };
 
+function levelHint(level: Level, grade?: number): string {
+  if (level === "schoolchild" && grade && grade >= 1 && grade <= 11) {
+    return `at a level suitable specifically for GRADE ${grade} of a standard school curriculum — pick something that grade actually covers, not an easier or harder grade's material`;
+  }
+  return LEVEL_HINTS[level];
+}
+
 export async function POST(req: NextRequest) {
   let body: RandomTopicBody;
 
@@ -45,6 +53,10 @@ export async function POST(req: NextRequest) {
   const level: Level = ["schoolchild", "student", "professional"].includes(body.level ?? "")
     ? (body.level as Level)
     : "student";
+  const grade =
+    typeof body.grade === "number" && Number.isFinite(body.grade)
+      ? Math.round(body.grade)
+      : undefined;
 
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
@@ -54,7 +66,7 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const prompt = `Pick exactly ONE specific, concrete topic that falls within the subject "${subject}", ${LEVEL_HINTS[level]}. It must be narrow enough that someone could explain it out loud from memory in under two minutes — a single concept, law, mechanism, process, or event — never a whole broad field or "everything about X". Pick something different and unpredictable each time, drawn at random from across the entire breadth of the subject, not just the most obvious textbook-chapter-one example.
+  const prompt = `Pick exactly ONE specific, concrete topic that falls within the subject "${subject}", ${levelHint(level, grade)}. It must be narrow enough that someone could explain it out loud from memory in under two minutes — a single concept, law, mechanism, process, or event — never a whole broad field or "everything about X". Pick something different and unpredictable each time, drawn at random from across the entire breadth of the subject, not just the most obvious textbook-chapter-one example.
 
 Respond with ONLY the topic name itself, written in ${languageName}, as a short phrase of 2-6 words. No quotation marks, no trailing punctuation, no explanation, no extra commentary — just the topic phrase and nothing else.`;
 

@@ -6,6 +6,7 @@ import { useLanguage } from "../i18n/LanguageContext";
 import { Dictionary, Lang } from "../i18n/translations";
 import { useAuth, isSupabaseConfigured } from "../auth/AuthContext";
 import { createClient } from "../../lib/supabase/client";
+import { SCHOOL_GRADE_OPTIONS } from "../../lib/rooms";
 
 type Level = "schoolchild" | "student" | "professional";
 type Cause = "theory" | "carelessness" | "misreading" | "logic" | "calculation";
@@ -341,6 +342,7 @@ export default function TryEcho() {
   const [mode, setMode] = useState<"text" | "voice" | "file">("text");
   const [topic, setTopic] = useState("");
   const [level, setLevel] = useState<Level>("student");
+  const [grade, setGrade] = useState(5);
   const [explanation, setExplanation] = useState("");
   const [status, setStatus] = useState<"idle" | "loading" | "done" | "error">("idle");
   const [feedback, setFeedback] = useState<Feedback | null>(null);
@@ -483,6 +485,7 @@ export default function TryEcho() {
           audioMimeType: audioBlob.type || "audio/webm",
           lang,
           level,
+          grade: level === "schoolchild" ? grade : undefined,
           previousScores,
         };
       } else if (mode === "file" && uploadedFile) {
@@ -494,6 +497,7 @@ export default function TryEcho() {
           fileMimeType: uploadedFile.type,
           lang,
           level,
+          grade: level === "schoolchild" ? grade : undefined,
           previousScores,
         };
       } else {
@@ -503,6 +507,7 @@ export default function TryEcho() {
           explanation,
           lang,
           level,
+          grade: level === "schoolchild" ? grade : undefined,
           previousScores,
         };
       }
@@ -645,6 +650,29 @@ export default function TryEcho() {
                   <option value="professional">{t.tryEcho.levelProfessional}</option>
                 </select>
               </div>
+
+              {level === "schoolchild" && (
+                <div>
+                  <label
+                    htmlFor="grade"
+                    className="text-sm font-semibold text-gray-700 dark:text-gray-300"
+                  >
+                    {t.tryEcho.gradeLabel}
+                  </label>
+                  <select
+                    id="grade"
+                    value={grade}
+                    onChange={(e) => setGrade(Number(e.target.value))}
+                    className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-950"
+                  >
+                    {SCHOOL_GRADE_OPTIONS.map((g) => (
+                      <option key={g} value={g}>
+                        {t.tryEcho.gradeOption.replace("{n}", String(g))}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
 
             </div>
 

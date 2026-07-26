@@ -268,6 +268,7 @@ export default function RoomPage() {
           explanation: answerText.trim(),
           lang: room.lang,
           level: room.level,
+          grade: room.level === "schoolchild" ? room.grade ?? undefined : undefined,
         }),
       });
 

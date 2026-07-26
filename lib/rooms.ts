@@ -13,6 +13,7 @@ export type Room = {
   subject: string;
   topic: string;
   level: RoomLevel;
+  grade: number | null; // only meaningful when level === "schoolchild"
   lang: "en" | "ru" | "tg";
   total_rounds: number;
   seconds_per_round: number;
@@ -70,3 +71,4 @@ export function normalizeRoomCode(raw: string): string {
 
 export const ROUND_TIME_PRESETS = [60, 90, 120, 180, 300] as const;
 export const ROUND_COUNT_PRESETS = [1, 3, 5, 8] as const;
+export const SCHOOL_GRADE_OPTIONS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11] as const;

@@ -11,6 +11,7 @@ import {
   normalizeRoomCode,
   ROUND_COUNT_PRESETS,
   ROUND_TIME_PRESETS,
+  SCHOOL_GRADE_OPTIONS,
   type RoomLevel,
 } from "../../lib/rooms";
 
@@ -22,6 +23,7 @@ export default function RoomsPage() {
   const [subject, setSubject] = useState("");
   const [topic, setTopic] = useState("");
   const [level, setLevel] = useState<RoomLevel>("student");
+  const [grade, setGrade] = useState(5);
   const [totalRounds, setTotalRounds] = useState(3);
   const [secondsPerRound, setSecondsPerRound] = useState(90);
   const [creating, setCreating] = useState(false);
@@ -43,7 +45,12 @@ export default function RoomsPage() {
       const res = await fetch("/api/random-topic", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ subject: subject.trim(), level, lang }),
+        body: JSON.stringify({
+          subject: subject.trim(),
+          level,
+          grade: level === "schoolchild" ? grade : undefined,
+          lang,
+        }),
       });
       if (!res.ok) throw new Error("random-topic failed");
       const data = await res.json();
@@ -78,6 +85,7 @@ export default function RoomsPage() {
           subject: subject.trim() || t.rooms.subjectPlaceholder,
           topic: topic.trim() || t.rooms.topicPlaceholder,
           level,
+          grade: level === "schoolchild" ? grade : null,
           lang,
           total_rounds: totalRounds,
           seconds_per_round: secondsPerRound,
@@ -218,6 +226,23 @@ export default function RoomsPage() {
                   <option value="professional">{t.tryEcho.levelProfessional}</option>
                 </select>
               </div>
+
+              {level === "schoolchild" && (
+                <div>
+                  <label className="text-sm text-gray-500 dark:text-gray-400">{t.rooms.gradeLabel}</label>
+                  <select
+                    value={grade}
+                    onChange={(e) => setGrade(Number(e.target.value))}
+                    className="mt-1 w-full rounded-xl border border-gray-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-950"
+                  >
+                    {SCHOOL_GRADE_OPTIONS.map((g) => (
+                      <option key={g} value={g}>
+                        {t.tryEcho.gradeOption.replace("{n}", String(g))}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
 
               <div>
                 <label className="text-sm text-gray-500 dark:text-gray-400">{t.rooms.topicLabel}</label>

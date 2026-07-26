@@ -93,6 +93,7 @@ create table if not exists public.rooms (
   subject text not null,
   topic text not null,
   level text not null default 'student',
+  grade int check (grade between 1 and 11), -- only meaningful when level = 'schoolchild'
   lang text not null default 'en',
   total_rounds int not null default 3 check (total_rounds between 1 and 10),
   seconds_per_round int not null default 90 check (seconds_per_round between 20 and 600),
